@@ -114,12 +114,20 @@
 	
 	jGame.prototype = {
 		/**
+		 * jGame.load()
+		 * 
+		 * prepares the canvas for rendering, and starts the update process
+		 **/
+		load : function(){
+			this.loaded(this);
+		},
+		/**
 		 * jGame.init()
 		 * 
 		 * prepares the canvas for rendering, and starts the update process
 		 **/
-		init : function(){
-			// base for starting, presetup ect.
+		 init : function() {
+		 	// base for starting, presetup ect.
 			var self = this;
 			
 			this.renderCanvas = document.getElementById(this.renderCanvas);
@@ -161,10 +169,8 @@
 			this.rightDown = false;
 			this.midDown = false;
 			
-			// Call the loaded function to make sure all resources have loaded before starting
-			//this.loaded(self);
+			requestAnimFrame( function(){Game.update()} );
 		},
-		
 		/**
 		 * jGame.update()
 		 * 
@@ -178,13 +184,19 @@
 			this.lastTime = curTime;
 			this.accTime += this.deltaTime;	
 			
+			// Limit the delta queing
+			if(this.accTime > 60){
+				this.accTime = 0;
+			}
+			
 			while (this.accTime > this.timeStep)
 			{
 				this.accTime -= this.timeStep;
-				var entities = this.entities;
-					
-				for (var id  = 0,entLen = this.entities.length; id < entLen; id ++){
-					var object = entities[id];
+				var entities = this.entities,
+					entLen = this.entities.length;
+				
+				while(entLen--){
+					var object = entities[entLen];
 					if(object !== undefined){
 						if(object.live){
 							object.update(this.timeStep /100);
@@ -211,10 +223,10 @@
 		loaded : function(game){
 			var self = this;
 			if(this.resourceManager.loadingComplete){
-				this.intervalId = setTimeout(function(){game.update()}, this.frameRate);
+				game.init();
 				return true;
 			}else{
-				setTimeout(this.loaded(game),100);
+				setTimeout(function(){self.loaded(game)},100);
 				return false;
 			}
 		},

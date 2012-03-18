@@ -9,15 +9,18 @@
 		this.pos = new Vector(0,0,0);
 		this.origin = new Vector(0,0,0);
 		this.vel = new Vector(0,0,0);
+		this.angle = 0;
 		this.thrust = 0;
 		this.color = this.color = {r : 255, g : 255, b: 255};
 		this.resource = {};
 		this.shape = true;
 		this.alpha = 1;
-		this.animated = false;
 		this.tileable = false;
-		this.shadow = false;
 		this.clickable = false;
+		this.isAnimating = false;
+		
+		this.lastAnim = 0;
+		this.animSpeed = 0;
 		
 		if(options !== undefined){
 			// Set size
@@ -81,6 +84,10 @@
 				this.pos = new Vector(options.x,options.y,z);
 			}
 			
+			if(typeof options.pos != 'undefined'){
+				this.pos = new Vector(options.pos.x,options.pos.y,options.pos.z);
+			}
+			
 			// Set velocity
 			if(options.vx === undefined || options.vy === undefined){
 				this.vel = new Vector(0,0,0);
@@ -88,7 +95,17 @@
 				this.vel = new Vector(options.vx,options.vy,0);
 			}
 			
-			if(options.thrust === undefined){
+			if(typeof options.vel != 'undefined'){
+				this.vel = new Vector(options.vel.x,options.vel.y,options.vel.z);
+			}
+			
+			if(typeof options.angle == 'undefined'){
+				this.angle = 0;
+			}else{
+				this.angle = options.angle;
+			}
+			
+			if(typeof options.thrust == 'undefined'){
 				this.thrust = 0;
 			}else{
 				this.thrust = options.thrust;
@@ -104,16 +121,6 @@
 				this.clickable = false
 			}else{
 				this.clickable = true;
-			}
-			
-			if(options.animated === undefined){
-				this.animated = false;
-			}else{
-				this.animated = true;
-			}
-			
-			if(options.shadow){
-				this.shadow = true;
 			}
 			
 		}
@@ -133,10 +140,21 @@
 		// Handles updating the sprite
 		update : function(deltaTime)
 		{
-		   /*if(this.pos){
-				this.x = this.pos.x;
-				this.y = this.pos.y;
-			}*/
+			if(this.isAnimating){
+				if(new Date().getTime() > this.lastAnim + this.animSpeed){
+					this.lastAnim = new Date().getTime();
+					this.startX  = this.width * this.curAnimation[this.frame];
+					this.frame++;
+					if(this.frame > this.curAnimation.length-1){
+						// stop if its a one shot animation
+						if(this.animType !== 1){
+							this.isAnimating = false
+						}else{
+							this.frame = 0;
+						}
+					}
+				}
+			}
 		},
 		// Add animation sequences for animated sprites
 		addAnimation : function(sequence, sequenceName){
@@ -149,16 +167,18 @@
 		 * animType - 0/null/undefined = play sequence full once, 1 = play until stopped
 		**/
 		playAnimation : function(sequenceName, animSpeed, animType){
-			for(var i = this.animations.length -1; i > 0; i--){
+			for(var i = 0, len = this.animations.length; i < len; i++){
 				var curAnim = this.animations[i];
 				if(curAnim.name === sequenceName){
 					this.curAnimation = curAnim.frames;
-					this.animSpeed = aniSpeed;
-					if(animType !== undefined){
+					this.animSpeed = animSpeed;
+					if(typeof animType == 'undefined'){
 						this.animType = 0;
 					}else{
-						this,animType = animType;
+						this.animType = animType;
 					}
+					this.frame = 0;
+					this.isAnimating = true;
 				}
 			}
 		},

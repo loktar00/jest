@@ -42,7 +42,7 @@
 		 * reports when an image is loaded
 		 **/
 		loadImg : function(callback, resource){
-			if(resource.source.complete && resource.source.width){				
+			if(resource.source.complete && resource.source.width){		
 				callback.loaded++;
 				if(callback.loaded === callback.resources.length){
 					callback.loadingComplete = true;

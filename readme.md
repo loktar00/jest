@@ -1,7 +1,7 @@
 JEST
 ====================
 
-just another JavaScript game framework
+Just another JavaScript game framework
 ---------------------
 
 Jest provides a way to rapidly create JavaScript (HTML5) games using the canvas element.
@@ -18,6 +18,8 @@ Jest's features include
 -   Resource loading (supports images and sounds)
 -   Fully featured particle engine
 -   Clickable sprites, and other mouse events such as the mousewheel.
+
+[Demo Showing Animated Sprites]: http://loktar00.github.com/jest/
 
 Things that still need to be done
 

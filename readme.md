@@ -19,7 +19,9 @@ Jest's features include
 -   Fully featured particle engine
 -   Clickable sprites, and other mouse events such as the mousewheel.
 
-[Demo Showing Animated Sprites]: http://loktar00.github.com/jest/
+[Demo Showing Animated Sprites]
+
+[Demo Showing Animated Sprites]:http://loktar00.github.com/jest/
 
 Things that still need to be done
 

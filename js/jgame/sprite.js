@@ -4,129 +4,84 @@
 	//constructor
     function Sprite(options)
     {   
-	
-		this.width = this.height = 32;
-		this.pos = new Vector(0,0,0);
-		this.origin = new Vector(0,0,0);
-		this.vel = new Vector(0,0,0);
-		this.angle = 0;
-		this.thrust = 0;
-		this.color = this.color = {r : 255, g : 255, b: 255};
-		this.resource = {};
-		this.shape = true;
-		this.alpha = 1;
-		this.tileable = false;
-		this.clickable = false;
+		options = options || {}; 
+		this.width = options.width || 32;
+		this.height = options.height || 32;
+		
+		// Set the position
+		this.pos = options.pos || {x:0, y:0, z:0};
+		if(options.x && options.y){
+			var z = 0;
+			if(options.z){
+				z = options.z;
+			}
+			this.pos = new Vector(options.x,options.y,z);
+		}else if(options.pos){
+			this.pos = options.pos;
+		}else{
+			this.pos = new Vector(0,0,0);
+		}
+		
+		// Set drawing origin
+		this.origin = options.origin || {x:0, y:0, z:0};
+		if(options.ox && options.oy){
+			var oz = 0;
+			if(options.oz){
+				oz = options.oz;
+			}
+			this.origin = new Vector(options.ox,options.oy,oz);
+		}else if(options.origin){
+			this.origin = options.origin;
+		}else{
+			this.origin = new Vector(0,0,0);
+		}
+		
+		// Set an initial velocity
+		this.vel = options.vel || {x:0, y:0, z:0};
+		if(options.vx && options.vy){
+			var vz = 0;
+			if(options.vz){
+				vz = options.vz;
+			}
+			this.vel = new Vector(options.vx,options.vy,vz);
+		}else if(options.vel){
+			this.vel = options.vel;
+		}else{
+			this.vel = new Vector(0,0,0);
+		}
+		
+		// StartX and StartY are used for animated sprites to determine which frame to show
+		this.startX = options.startX || 0;
+		this.startY = options.startY || 0;
+		
+		this.tileable = options.tileable || false;	
+		if(this.tileable){
+			this.endX = options.endX || this.width;
+			this.endY = options.endY || this.height;
+		}
+		
+		// If theres not a resource specified we just assume its going to be a rect
+		if(options.resource === undefined){
+			this.shape = true;
+			this.resource = {};
+		}else{
+			this.shape = false;
+			this.resource = options.resource;
+		}
+		
+		this.angle = options.angle || 0;
+		this.thrust = options.thrust || 0;
+		this.color = options.color || {r:255,g:255,b:255};
+		this.clickable = options.clickable || false;
+
+		// required properties
+		this.visible = true;
+		
+		this.animations = [];
 		this.isAnimating = false;
 		
 		this.lastAnim = 0;
 		this.animSpeed = 0;
-		
-		if(options !== undefined){
-			// Set size
-			if(options.width === undefined){
-				this.width = 32;
-			}else{
-				this.width = options.width;
-			}
-			
-			if(options.height === undefined){
-				this.height = 32;
-			}else{
-				this.height = options.height;
-			}
-			
-			// Set start position on tilesheet for particular sprite
-			if(options.startX === undefined){
-				this.startX = 0;
-			}else{
-				this.startX = options.startX;
-			}
-			
-			if(options.startY === undefined){
-				this.startY= 0;
-			}else{
-				this.startY = options.startY;
-			}
-			
-			// Check if its a tileable graphic need to finish not fully implemented
-			if(options.tileable){
-				this.tileable = options.tileable;
-				
-				if(options.endX){
-					this.endX = options.endX;
-				}
-				
-				if(options.endY){
-					this.endY = options.endY;
-				}
-			}
-			
-			// Set resource if there isnt one, then make it a standard shape
-			if(options.resource === undefined){
-				this.shape = true;
-				this.resource = {};
-			}else{
-				this.shape = false;
-				this.resource = options.resource;
-			}
-			
-			// Set position
-			if(options.x === undefined || options.y === undefined){
-				this.pos = new Vector(0,0,0);
-			}else{
-				var z = 0;
-				
-				if(options.z){
-					z = options.z;
-				}
-				
-				this.pos = new Vector(options.x,options.y,z);
-			}
-			
-			if(typeof options.pos != 'undefined'){
-				this.pos = new Vector(options.pos.x,options.pos.y,options.pos.z);
-			}
-			
-			// Set velocity
-			if(options.vx === undefined || options.vy === undefined){
-				this.vel = new Vector(0,0,0);
-			}else{
-				this.vel = new Vector(options.vx,options.vy,0);
-			}
-			
-			if(typeof options.vel != 'undefined'){
-				this.vel = new Vector(options.vel.x,options.vel.y,options.vel.z);
-			}
-			
-			if(typeof options.angle == 'undefined'){
-				this.angle = 0;
-			}else{
-				this.angle = options.angle;
-			}
-			
-			if(typeof options.thrust == 'undefined'){
-				this.thrust = 0;
-			}else{
-				this.thrust = options.thrust;
-			}
-			
-			//Set Color
-			if(typeof options.color !== 'undefined'){
-				this.color = options.color;
-			}
-			
-			// Set clickable
-			if(options.clickable === undefined){
-				this.clickable = false
-			}else{
-				this.clickable = true;
-			}
-			
-		}
-		
-		this.visible = true;
-		this.animations = [];
 				
 		this.x = this.pos.x;
 		this.y = this.pos.y;
@@ -197,14 +152,6 @@
 			_context.save;
 			if(!this.shape){
 				_context.drawImage(this.resource.source,this.startX,this.startY,this.width,this.height, this.pos.x-this.origin.x, this.pos.y-this.origin.y, this.width,this.height);
-				// Debugs collision bounds
-				/*if(this.radius){
-					_context.strokeStyle = "rgb(255,0,0)";
-					_context.beginPath();
-					_context.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI*2, true); 
-					_context.closePath();
-					_context.stroke();
-				}*/
 			}else{
 				var color = this.color;
 				_context.fillStyle = "rgba(" + color.r + "," + color.g + "," + color.b + "," + this.alpha + ")";
@@ -212,9 +159,8 @@
 			}
 			_context.restore();
 		},
-		// Object was clicked do some stuff brah
 		clicked : function(){
-
+			// Object was clicked do some stuff brah
 		}
 	}	
 })();

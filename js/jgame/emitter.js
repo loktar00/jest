@@ -3,29 +3,16 @@
     {    
 		this.utilities = Game.utilities;	
 		this.live = true;
-		this.width = Game.bounds.width;
-		this.height = Game.bounds.height;
-
 		this.particleGroups = [];
 
 		// Timing specifics
 		this.lastUpdate = new Date().getTime();
 		this.startTime =  new Date().getTime();
 		
-		// se if our width and height were passed not doing as much checking as I could because i know ill pass the right stuff!
-		if(options !== undefined){
-			if(options.width !== undefined){
-				this.width = Game.bounds.width;
-			}
-			
-			if(options.height !== undefined){
-				this.height = Game.bounds.height;
-			}
-			
-			if(options.pos !== undefined){
-				this.pos = options.pos;
-			}
-		}
+		options = options || {};
+		this.width = options.width || Game.bounds.width;
+		this.height = options.height || Game.bounds.height;
+		this.pos = options.pos || {x:0,y:0,z:0};
 		
 		Game.addEntity(this, true);
     }

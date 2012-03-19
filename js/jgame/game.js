@@ -18,64 +18,14 @@
 	 * Sets up the initial values required to start the game
 	 **/
 	function jGame(options){
-		if(options !== undefined){
-			// set canvas
-			if(options.canvas === undefined){
-				this.renderCanvas = options.canvas;
-			}else{
-				this.renderCanvas = "playCanvas";
-			}
-			
-			// Set canvas size
-			if(options.width === undefined){
-				this.width = 320;
-			}else{
-				this.width = options.width;
-			}
-			
-			if(options.height === undefined){
-				this.height = 240;
-			}else{
-				this.height = options.height;
-			}
-			
-			// Set Framerate
-			if(options.frameRate === undefined){
-				this.frameRate = Math.ceil(1000 / 60);
-			}else{
-				this.frameRate = options.frameRate;
-			}
-			
-			// Show or hide Framerate display
-			if(options.showFrameRate === undefined){
-				this.showFrameRate = false;
-			}else{
-				this.showFrameRate = options.showFrameRate;
-			}
-			
-			// Set Error rate for physics calculations;
-			if(options.errorCorrection === undefined){
-				this.errorCorrection = 5;
-			}else{
-				this.errorCorrection = options.errorCorrection;
-			}
-			
-			// option for specifying the name of the first state
-			if(options.stateName){
-				this.stateName = options.stateName;
-			}else{
-				this.stateName = "0";
-			}
-			
-		}else{
-			this.renderCanvas = "playCanvas";
-			this.width = 320;
-			this.height = 240;
-			this.frameRate = Math.ceil(1000 / 60);
-			this.errorCorrection = 5;
-			this.showFrameRate = false;
-			this.stateName = "0";
-		}
+		
+		options = options || {}; 
+		this.renderCanvas = options.canvas || "playCanvas";
+		this.width = options.width || 320;
+		this.height = options.height || 240;
+		this.frameRate = options.frameRate || Math.ceil(1000/60);
+		this.showFrameRate = options.showFrameRate || false;
+		this.stateName = options.stateName || "0";
 		
 		// State info
 		this.states = [];

@@ -1,3 +1,15 @@
+// Utility merge from the awesome https://github.com/Titani/SO-ChatBot/
+Object.merge = function () {
+	return [].reduce.call( arguments, function ( ret, merger ) {
+
+		Object.keys( merger ).forEach(function ( key ) {
+			ret[ key ] = merger[ key ];
+		});
+
+		return ret;
+	}, {} );
+};
+
 (function () {
 
 	function Utilities(){

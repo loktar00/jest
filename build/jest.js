@@ -131,6 +131,18 @@
 		}
 	}
 })();
+// Utility merge from the awesome https://github.com/Titani/SO-ChatBot/
+Object.merge = function () {
+	return [].reduce.call( arguments, function ( ret, merger ) {
+
+		Object.keys( merger ).forEach(function ( key ) {
+			ret[ key ] = merger[ key ];
+		});
+
+		return ret;
+	}, {} );
+};
+
 (function () {
 
 	function Utilities(){
@@ -524,64 +536,14 @@
 	 * Sets up the initial values required to start the game
 	 **/
 	function jGame(options){
-		if(options !== undefined){
-			// set canvas
-			if(options.canvas === undefined){
-				this.renderCanvas = options.canvas;
-			}else{
-				this.renderCanvas = "playCanvas";
-			}
-			
-			// Set canvas size
-			if(options.width === undefined){
-				this.width = 320;
-			}else{
-				this.width = options.width;
-			}
-			
-			if(options.height === undefined){
-				this.height = 240;
-			}else{
-				this.height = options.height;
-			}
-			
-			// Set Framerate
-			if(options.frameRate === undefined){
-				this.frameRate = Math.ceil(1000 / 60);
-			}else{
-				this.frameRate = options.frameRate;
-			}
-			
-			// Show or hide Framerate display
-			if(options.showFrameRate === undefined){
-				this.showFrameRate = false;
-			}else{
-				this.showFrameRate = options.showFrameRate;
-			}
-			
-			// Set Error rate for physics calculations;
-			if(options.errorCorrection === undefined){
-				this.errorCorrection = 5;
-			}else{
-				this.errorCorrection = options.errorCorrection;
-			}
-			
-			// option for specifying the name of the first state
-			if(options.stateName){
-				this.stateName = options.stateName;
-			}else{
-				this.stateName = "0";
-			}
-			
-		}else{
-			this.renderCanvas = "playCanvas";
-			this.width = 320;
-			this.height = 240;
-			this.frameRate = Math.ceil(1000 / 60);
-			this.errorCorrection = 5;
-			this.showFrameRate = false;
-			this.stateName = "0";
-		}
+		
+		options = options || {}; 
+		this.renderCanvas = options.canvas || "playCanvas";
+		this.width = options.width || 320;
+		this.height = options.height || 240;
+		this.frameRate = options.frameRate || Math.ceil(1000/60);
+		this.showFrameRate = options.showFrameRate || false;
+		this.stateName = options.stateName || "0";
 		
 		// State info
 		this.states = [];
@@ -1068,129 +1030,84 @@
 	//constructor
     function Sprite(options)
     {   
-	
-		this.width = this.height = 32;
-		this.pos = new Vector(0,0,0);
-		this.origin = new Vector(0,0,0);
-		this.vel = new Vector(0,0,0);
-		this.angle = 0;
-		this.thrust = 0;
-		this.color = this.color = {r : 255, g : 255, b: 255};
-		this.resource = {};
-		this.shape = true;
-		this.alpha = 1;
-		this.tileable = false;
-		this.clickable = false;
+		options = options || {}; 
+		this.width = options.width || 32;
+		this.height = options.height || 32;
+		
+		// Set the position
+		this.pos = options.pos || {x:0, y:0, z:0};
+		if(options.x && options.y){
+			var z = 0;
+			if(options.z){
+				z = options.z;
+			}
+			this.pos = new Vector(options.x,options.y,z);
+		}else if(options.pos){
+			this.pos = options.pos;
+		}else{
+			this.pos = new Vector(0,0,0);
+		}
+		
+		// Set drawing origin
+		this.origin = options.origin || {x:0, y:0, z:0};
+		if(options.ox && options.oy){
+			var oz = 0;
+			if(options.oz){
+				oz = options.oz;
+			}
+			this.origin = new Vector(options.ox,options.oy,oz);
+		}else if(options.origin){
+			this.origin = options.origin;
+		}else{
+			this.origin = new Vector(0,0,0);
+		}
+		
+		// Set an initial velocity
+		this.vel = options.vel || {x:0, y:0, z:0};
+		if(options.vx && options.vy){
+			var vz = 0;
+			if(options.vz){
+				vz = options.vz;
+			}
+			this.vel = new Vector(options.vx,options.vy,vz);
+		}else if(options.vel){
+			this.vel = options.vel;
+		}else{
+			this.vel = new Vector(0,0,0);
+		}
+		
+		// StartX and StartY are used for animated sprites to determine which frame to show
+		this.startX = options.startX || 0;
+		this.startY = options.startY || 0;
+		
+		this.tileable = options.tileable || false;	
+		if(this.tileable){
+			this.endX = options.endX || this.width;
+			this.endY = options.endY || this.height;
+		}
+		
+		// If theres not a resource specified we just assume its going to be a rect
+		if(options.resource === undefined){
+			this.shape = true;
+			this.resource = {};
+		}else{
+			this.shape = false;
+			this.resource = options.resource;
+		}
+		
+		this.angle = options.angle || 0;
+		this.thrust = options.thrust || 0;
+		this.color = options.color || {r:255,g:255,b:255};
+		this.clickable = options.clickable || false;
+
+		// required properties
+		this.visible = true;
+		
+		this.animations = [];
 		this.isAnimating = false;
 		
 		this.lastAnim = 0;
 		this.animSpeed = 0;
-		
-		if(options !== undefined){
-			// Set size
-			if(options.width === undefined){
-				this.width = 32;
-			}else{
-				this.width = options.width;
-			}
-			
-			if(options.height === undefined){
-				this.height = 32;
-			}else{
-				this.height = options.height;
-			}
-			
-			// Set start position on tilesheet for particular sprite
-			if(options.startX === undefined){
-				this.startX = 0;
-			}else{
-				this.startX = options.startX;
-			}
-			
-			if(options.startY === undefined){
-				this.startY= 0;
-			}else{
-				this.startY = options.startY;
-			}
-			
-			// Check if its a tileable graphic need to finish not fully implemented
-			if(options.tileable){
-				this.tileable = options.tileable;
-				
-				if(options.endX){
-					this.endX = options.endX;
-				}
-				
-				if(options.endY){
-					this.endY = options.endY;
-				}
-			}
-			
-			// Set resource if there isnt one, then make it a standard shape
-			if(options.resource === undefined){
-				this.shape = true;
-				this.resource = {};
-			}else{
-				this.shape = false;
-				this.resource = options.resource;
-			}
-			
-			// Set position
-			if(options.x === undefined || options.y === undefined){
-				this.pos = new Vector(0,0,0);
-			}else{
-				var z = 0;
-				
-				if(options.z){
-					z = options.z;
-				}
-				
-				this.pos = new Vector(options.x,options.y,z);
-			}
-			
-			if(typeof options.pos != 'undefined'){
-				this.pos = new Vector(options.pos.x,options.pos.y,options.pos.z);
-			}
-			
-			// Set velocity
-			if(options.vx === undefined || options.vy === undefined){
-				this.vel = new Vector(0,0,0);
-			}else{
-				this.vel = new Vector(options.vx,options.vy,0);
-			}
-			
-			if(typeof options.vel != 'undefined'){
-				this.vel = new Vector(options.vel.x,options.vel.y,options.vel.z);
-			}
-			
-			if(typeof options.angle == 'undefined'){
-				this.angle = 0;
-			}else{
-				this.angle = options.angle;
-			}
-			
-			if(typeof options.thrust == 'undefined'){
-				this.thrust = 0;
-			}else{
-				this.thrust = options.thrust;
-			}
-			
-			//Set Color
-			if(typeof options.color !== 'undefined'){
-				this.color = options.color;
-			}
-			
-			// Set clickable
-			if(options.clickable === undefined){
-				this.clickable = false
-			}else{
-				this.clickable = true;
-			}
-			
-		}
-		
-		this.visible = true;
-		this.animations = [];
 				
 		this.x = this.pos.x;
 		this.y = this.pos.y;
@@ -1261,14 +1178,6 @@
 			_context.save;
 			if(!this.shape){
 				_context.drawImage(this.resource.source,this.startX,this.startY,this.width,this.height, this.pos.x-this.origin.x, this.pos.y-this.origin.y, this.width,this.height);
-				// Debugs collision bounds
-				/*if(this.radius){
-					_context.strokeStyle = "rgb(255,0,0)";
-					_context.beginPath();
-					_context.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI*2, true); 
-					_context.closePath();
-					_context.stroke();
-				}*/
 			}else{
 				var color = this.color;
 				_context.fillStyle = "rgba(" + color.r + "," + color.g + "," + color.b + "," + this.alpha + ")";
@@ -1276,9 +1185,8 @@
 			}
 			_context.restore();
 		},
-		// Object was clicked do some stuff brah
 		clicked : function(){
-
+			// Object was clicked do some stuff brah
 		}
 	}	
 })();
@@ -1287,29 +1195,16 @@
     {    
 		this.utilities = Game.utilities;	
 		this.live = true;
-		this.width = Game.bounds.width;
-		this.height = Game.bounds.height;
-
 		this.particleGroups = [];
 
 		// Timing specifics
 		this.lastUpdate = new Date().getTime();
 		this.startTime =  new Date().getTime();
 		
-		// se if our width and height were passed not doing as much checking as I could because i know ill pass the right stuff!
-		if(options !== undefined){
-			if(options.width !== undefined){
-				this.width = Game.bounds.width;
-			}
-			
-			if(options.height !== undefined){
-				this.height = Game.bounds.height;
-			}
-			
-			if(options.pos !== undefined){
-				this.pos = options.pos;
-			}
-		}
+		options = options || {};
+		this.width = options.width || Game.bounds.width;
+		this.height = options.height || Game.bounds.height;
+		this.pos = options.pos || {x:0,y:0,z:0};
 		
 		Game.addEntity(this, true);
     }
@@ -1387,7 +1282,7 @@
 (function () {	
     function Particle(options)
     {   
-		Sprite.call(this, options);	
+Sprite.call(this, options);	
 		Game.particleCount++;
 		
 		this.lifeTime = 1000; // 1 second default lifetime
@@ -1453,6 +1348,12 @@
 				this.endSize = options.endSize;
 			}
 			
+			if(typeof options.gravity !== 'undefined'){
+				this.gravity = options.gravity;
+			}else{
+				this.gravity = 0;
+			}
+			
 			if(typeof options.angleChange !== 'undefined'){
 				this.angleChange = options.angleChange;
 			}
@@ -1477,7 +1378,6 @@
 		
 		this.endLife = this.startLife + this.lifeTime;
 		
-	
 		// precalc color changes
 		this.colors = [];
 		if(this.endColor !== this.startColor){
@@ -1495,11 +1395,12 @@
 		this.curStep =  this.endLife - new Date().getTime();
 		
 		this.vel.x = Math.cos(((this.angle)) *  Math.PI / 180) * this.thrust * deltaTime;
-		this.vel.y = Math.sin(((this.angle)) *  Math.PI / 180) * this.thrust * deltaTime;	
+		this.vel.y = ((Math.sin(((this.angle)) *  Math.PI / 180) * this.thrust)+this.gravity*(this.lifeTime-this.curStep)*deltaTime) * deltaTime;	
+		
 		
 		this.pos.x += this.vel.x;
 		this.pos.y += this.vel.y;
-				
+		
 		if(this.pos.y < 0 || this.pos.y > Game.bounds.y + Game.bounds.height){
 			this.live = false;
 			Game.particleCount--;
@@ -1551,13 +1452,14 @@
 	Particle.prototype.render = function(_context){
 		_context.save();
 		
-		var scale = this.scale,
+		var scale = this.scale || {x:0,y:0},
 			origin = this.origin;
 		
+		if(this.blend){
+			_context.globalCompositeOperation = "lighter";
+		}
+			
 		if(!this.shape){
-			if(this.blend){
-				_context.globalCompositeOperation = "lighter";
-			}
 			_context.globalAlpha  = this.alpha;
 						
 			if(this.drawAngle !== 0){
@@ -1570,13 +1472,12 @@
 		}else{
 			var color = this.color;
 			_context.fillStyle = "rgba(" + color.r + "," + color.g + "," + color.b + "," + this.alpha + ")";
-			
 			if(this.drawAngle !== 0){
 				_context.translate(this.pos.x, this.pos.y);
 				_context.rotate(this.drawAngle*Math.PI/180);
-				_context.fillRect(-this.origin.x,-this.origin.y,this.width,this.height);
+				_context.fillRect(-this.origin.x,-this.origin.y,this.width-scale.x,this.height-scale.y);
 			}else{
-				_context.fillRect(this.pos.x-this.origin.x, this.pos.y-this.origin.y, this.width,this.height);
+				_context.fillRect(this.pos.x-this.origin.x, this.pos.y-this.origin.y, this.width-scale.x,this.height-scale.y);
 			}
 		}
 		_context.restore();

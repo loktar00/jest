@@ -1,7 +1,7 @@
 (function () {	
     function Particle(options)
     {   
-		Sprite.call(this, options);	
+Sprite.call(this, options);	
 		Game.particleCount++;
 		
 		this.lifeTime = 1000; // 1 second default lifetime
@@ -67,6 +67,12 @@
 				this.endSize = options.endSize;
 			}
 			
+			if(typeof options.gravity !== 'undefined'){
+				this.gravity = options.gravity;
+			}else{
+				this.gravity = 0;
+			}
+			
 			if(typeof options.angleChange !== 'undefined'){
 				this.angleChange = options.angleChange;
 			}
@@ -91,7 +97,6 @@
 		
 		this.endLife = this.startLife + this.lifeTime;
 		
-	
 		// precalc color changes
 		this.colors = [];
 		if(this.endColor !== this.startColor){
@@ -109,11 +114,12 @@
 		this.curStep =  this.endLife - new Date().getTime();
 		
 		this.vel.x = Math.cos(((this.angle)) *  Math.PI / 180) * this.thrust * deltaTime;
-		this.vel.y = Math.sin(((this.angle)) *  Math.PI / 180) * this.thrust * deltaTime;	
+		this.vel.y = ((Math.sin(((this.angle)) *  Math.PI / 180) * this.thrust)+this.gravity*(this.lifeTime-this.curStep)*deltaTime) * deltaTime;	
+		
 		
 		this.pos.x += this.vel.x;
 		this.pos.y += this.vel.y;
-				
+		
 		if(this.pos.y < 0 || this.pos.y > Game.bounds.y + Game.bounds.height){
 			this.live = false;
 			Game.particleCount--;
@@ -165,13 +171,14 @@
 	Particle.prototype.render = function(_context){
 		_context.save();
 		
-		var scale = this.scale,
+		var scale = this.scale || {x:0,y:0},
 			origin = this.origin;
 		
+		if(this.blend){
+			_context.globalCompositeOperation = "lighter";
+		}
+			
 		if(!this.shape){
-			if(this.blend){
-				_context.globalCompositeOperation = "lighter";
-			}
 			_context.globalAlpha  = this.alpha;
 						
 			if(this.drawAngle !== 0){
@@ -184,13 +191,12 @@
 		}else{
 			var color = this.color;
 			_context.fillStyle = "rgba(" + color.r + "," + color.g + "," + color.b + "," + this.alpha + ")";
-			
 			if(this.drawAngle !== 0){
 				_context.translate(this.pos.x, this.pos.y);
 				_context.rotate(this.drawAngle*Math.PI/180);
-				_context.fillRect(-this.origin.x,-this.origin.y,this.width,this.height);
+				_context.fillRect(-this.origin.x,-this.origin.y,this.width-scale.x,this.height-scale.y);
 			}else{
-				_context.fillRect(this.pos.x-this.origin.x, this.pos.y-this.origin.y, this.width,this.height);
+				_context.fillRect(this.pos.x-this.origin.x, this.pos.y-this.origin.y, this.width-scale.x,this.height-scale.y);
 			}
 		}
 		_context.restore();

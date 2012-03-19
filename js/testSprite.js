@@ -5,7 +5,6 @@
     {  		
 		Sprite.call(this, options);
 		this.clickable = true;	
-
 		this.addAnimation([0,1,2], "walk");
 		this.addAnimation([5,3,4], "punch");
 		this.playAnimation('walk', 130, 1);

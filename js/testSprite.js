@@ -14,9 +14,9 @@
 	TestSprite.prototype = new Sprite();
 	this.TestSprite = TestSprite;
 	
-	// public
+
 	TestSprite.prototype.update = function(deltaTime)
-    {
+    	{
 		Sprite.prototype.update.call(this, deltaTime);
 		
 		if(!this.isAnimating){
@@ -38,7 +38,7 @@
 		}
 		
 		this.startY = this.height*Math.round(this.angle/90);
-    };
+    	};
 	
 	TestSprite.prototype.clicked = function(){
 		this.playAnimation('punch', 130, 0);

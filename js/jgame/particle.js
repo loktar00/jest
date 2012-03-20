@@ -172,7 +172,13 @@ Sprite.call(this, options);
 		_context.save();
 		
 		var scale = this.scale || {x:0,y:0},
-			origin = this.origin;
+			x = this.pos.x,
+			y = this.pos.y,
+			oX = this.origin.x,
+			oY = this.origin.y,
+			width = this.width,
+			height = this.height,
+			rotAngle = this.drawAngle*Math.PI/180;
 		
 		if(this.blend){
 			_context.globalCompositeOperation = "lighter";
@@ -182,21 +188,21 @@ Sprite.call(this, options);
 			_context.globalAlpha  = this.alpha;
 						
 			if(this.drawAngle !== 0){
-				_context.translate(this.pos.x, this.pos.y);
-				_context.rotate(this.drawAngle*Math.PI/180);
-				_context.drawImage(this.resource.source,this.startX,this.startY,this.width,this.height, scale.x/2, scale.y/2, this.width-scale.x,this.height-scale.y);
+				_context.translate(x, y);
+				_context.rotate(rotAngle);
+				_context.drawImage(this.resource.source,this.startX,this.startY,width,height, scale.x/2, scale.y/2, width-scale.x,height-scale.y);
 			}else{
-				_context.drawImage(this.resource.source,this.startX,this.startY,this.width,this.height, this.pos.x-origin.x, this.pos.y-origin.y, this.width-scale.x,this.height-scale.y);
+				_context.drawImage(this.resource.source,this.startX,this.startY,width,height, x-oX, y-oY, width-scale.x,height-scale.y);
 			}
 		}else{
 			var color = this.color;
 			_context.fillStyle = "rgba(" + color.r + "," + color.g + "," + color.b + "," + this.alpha + ")";
 			if(this.drawAngle !== 0){
-				_context.translate(this.pos.x, this.pos.y);
-				_context.rotate(this.drawAngle*Math.PI/180);
-				_context.fillRect(-this.origin.x,-this.origin.y,this.width-scale.x,this.height-scale.y);
+				_context.translate(x, y);
+				_context.rotate(rotAngle);
+				_context.fillRect(-oX,-oY,width-scale.x,height-scale.y);
 			}else{
-				_context.fillRect(this.pos.x-this.origin.x, this.pos.y-this.origin.y, this.width-scale.x,this.height-scale.y);
+				_context.fillRect(x-oX, y-oY, width-scale.x,height-scale.y);
 			}
 		}
 		_context.restore();

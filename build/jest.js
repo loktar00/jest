@@ -1177,7 +1177,12 @@ Object.merge = function () {
 		render : function(_context){		
 			_context.save;
 			if(!this.shape){
-				_context.drawImage(this.resource.source,this.startX,this.startY,this.width,this.height, this.pos.x-this.origin.x, this.pos.y-this.origin.y, this.width,this.height);
+			
+				// render to the nearest full pixel
+				var cX = (0.5 + (this.pos.x-this.origin.x)) << 0,
+					cY = (0.5 + (this.pos.y-this.origin.y)) << 0;
+					
+				_context.drawImage(this.resource.source,this.startX,this.startY,this.width,this.height, cX, cY, this.width,this.height);
 			}else{
 				var color = this.color;
 				_context.fillStyle = "rgba(" + color.r + "," + color.g + "," + color.b + "," + this.alpha + ")";

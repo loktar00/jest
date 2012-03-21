@@ -1,4 +1,3 @@
-// From mr. doob
 (function () {		
 	function Vector(x, y, z)
     {

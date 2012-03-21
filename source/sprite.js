@@ -73,7 +73,14 @@
 		this.thrust = options.thrust || 0;
 		this.color = options.color || {r:255,g:255,b:255};
 		this.clickable = options.clickable || false;
-
+		
+		// for referencing a list of entities or sprites its a part of
+		if(options.list){
+			this.list = options.list
+		}else{
+			this.list = [];
+		}
+		
 		// required properties
 		this.visible = true;
 		

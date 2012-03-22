@@ -1,4 +1,3 @@
-// From mr. doob
 (function () {		
 	function Vector(x, y, z)
     {
@@ -152,11 +151,11 @@ Object.merge = function () {
 	this.Utilities = Utilities;
 
 	Utilities.prototype.getRandomRange = function(_min, _max){   
-		return Math.floor(Math.random()*_max+_min);
+		return Math.floor(Math.random()*(_max-_min))+_min;
 	}
 	
 	Utilities.prototype.fGetRandomRange = function(_min, _max){   
-		return Math.random()*_max+_min;
+		return Math.random()*(_max-_min)+_min;
 	}
 	
 	Utilities.prototype.getDistance = function(a, b){
@@ -1264,7 +1263,8 @@ Object.merge = function () {
 						particleGroups[pg].y = this.pos.y;
 						
 						var thrustRange = particleGroups[pg].thrustRange,
-							angleRange = particleGroups[pg].angleRange;
+							angleRange = particleGroups[pg].angleRange,
+							drawAngleRange = particleGroups[pg].drawAngleRange;
 
 						if(typeof thrustRange != 'undefined'){
 							if(typeof thrustRange.max != 'undefined' && typeof thrustRange.min != 'undefined'){
@@ -1279,6 +1279,14 @@ Object.merge = function () {
 								particleGroups[pg].angle = utilities.fGetRandomRange(angleRange.min, angleRange.max);
 							}else if(typeof angleRange.max != 'undefined'){
 								particleGroups[pg].angle = utilities.fGetRandomRange(0,angleRange.max);
+							}
+						}
+						
+						if(typeof drawAngleRange != 'undefined'){
+							if(typeof drawAngleRange.max != 'undefined' && typeof drawAngleRange.min != 'undefined'){
+								particleGroups[pg].drawAngle = utilities.fGetRandomRange(drawAngleRange.min, drawAngleRange.max);
+							}else if(typeof drawAngleRange.max != 'undefined'){
+								particleGroups[pg].drawAngle = utilities.fGetRandomRange(0,drawAngleRange.max);
 							}
 						}
 						
@@ -1389,7 +1397,7 @@ Sprite.call(this, options);
 		this.origin.x = this.width/2;
 		
 		this.endLife = this.startLife + this.lifeTime;
-		
+
 		// precalc color changes
 		this.colors = [];
 		if(this.endColor !== this.startColor){

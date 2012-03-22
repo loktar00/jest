@@ -19,11 +19,11 @@ Object.merge = function () {
 	this.Utilities = Utilities;
 
 	Utilities.prototype.getRandomRange = function(_min, _max){   
-		return Math.floor(Math.random()*_max+_min);
+		return Math.floor(Math.random()*(_max-_min))+_min;
 	}
 	
 	Utilities.prototype.fGetRandomRange = function(_min, _max){   
-		return Math.random()*_max+_min;
+		return Math.random()*(_max-_min)+_min;
 	}
 	
 	Utilities.prototype.getDistance = function(a, b){

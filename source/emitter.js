@@ -60,7 +60,8 @@
 						particleGroups[pg].y = this.pos.y;
 						
 						var thrustRange = particleGroups[pg].thrustRange,
-							angleRange = particleGroups[pg].angleRange;
+							angleRange = particleGroups[pg].angleRange,
+							drawAngleRange = particleGroups[pg].drawAngleRange;
 
 						if(typeof thrustRange != 'undefined'){
 							if(typeof thrustRange.max != 'undefined' && typeof thrustRange.min != 'undefined'){
@@ -75,6 +76,14 @@
 								particleGroups[pg].angle = utilities.fGetRandomRange(angleRange.min, angleRange.max);
 							}else if(typeof angleRange.max != 'undefined'){
 								particleGroups[pg].angle = utilities.fGetRandomRange(0,angleRange.max);
+							}
+						}
+						
+						if(typeof drawAngleRange != 'undefined'){
+							if(typeof drawAngleRange.max != 'undefined' && typeof drawAngleRange.min != 'undefined'){
+								particleGroups[pg].drawAngle = utilities.fGetRandomRange(drawAngleRange.min, drawAngleRange.max);
+							}else if(typeof drawAngleRange.max != 'undefined'){
+								particleGroups[pg].drawAngle = utilities.fGetRandomRange(0,drawAngleRange.max);
 							}
 						}
 						

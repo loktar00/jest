@@ -96,7 +96,7 @@ Sprite.call(this, options);
 		this.origin.x = this.width/2;
 		
 		this.endLife = this.startLife + this.lifeTime;
-		
+
 		// precalc color changes
 		this.colors = [];
 		if(this.endColor !== this.startColor){

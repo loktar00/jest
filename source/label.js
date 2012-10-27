@@ -1,5 +1,4 @@
 (function () {
-	//constructor
     function Label(options)
     {   
 		if(options !== undefined){

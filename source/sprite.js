@@ -1,7 +1,4 @@
-(function () {
-	var utilities = new Utilities();	
-	
-	//constructor
+(function () {	
     function Sprite(options)
     {   
 		options = options || {}; 
@@ -72,11 +69,13 @@
 		this.angle = options.angle || 0;
 		this.thrust = options.thrust || 0;
 		this.color = options.color || {r:255,g:255,b:255};
+		this.alpha = 255;
 		this.clickable = options.clickable || false;
 		
 		// for referencing a list of entities or sprites its a part of
-		if(options.list){
-			this.list = options.list
+		if(options.list && options.list.length != 'undefined'){
+			this.list = options.list;
+			this.list.push(this);
 		}else{
 			this.list = [];
 		}
@@ -153,6 +152,15 @@
 		},
 		kill : function(){
 			// do something before its "dead"
+			if(this.list.length > 0){
+				var listItem = this.list.length,
+					list = this.list,
+					item = list.indexOf(this);
+					
+				if(item){
+					list.splice(item,1);
+				}
+			}
 		},
 		// Draw
 		render : function(_context){		

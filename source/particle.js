@@ -1,7 +1,7 @@
 (function () {	
     function Particle(options)
     {   
-Sprite.call(this, options);	
+		Sprite.call(this, options);	
 		Game.particleCount++;
 		
 		this.lifeTime = 1000; // 1 second default lifetime
@@ -195,14 +195,26 @@ Sprite.call(this, options);
 				_context.drawImage(this.resource.source,this.startX,this.startY,width,height, x-oX, y-oY, width-scale.x,height-scale.y);
 			}
 		}else{
-			var color = this.color;
-			_context.fillStyle = "rgba(" + color.r + "," + color.g + "," + color.b + "," + this.alpha + ")";
+			var color = this.color || {r:0,g:0,b:0};
+			_context.fillStyle = "rgba(" + color.r+ "," + color.g + "," + color.b + "," + this.alpha + ")";
 			if(this.drawAngle !== 0){
 				_context.translate(x, y);
 				_context.rotate(rotAngle);
-				_context.fillRect(-oX,-oY,width-scale.x,height-scale.y);
+				_context.beginPath();
+				_context.moveTo(-oX, -oY);
+				_context.lineTo(-oX + width-scale.x, -oY);
+				_context.lineTo(-oX + width-scale.x, -oY + height-scale.y);
+				_context.lineTo(-oX, -oY + height-scale.y);
+				_context.fill();
+				//_context.fillRect(-oX,-oY,width-scale.x,height-scale.y);
 			}else{
-				_context.fillRect(x-oX, y-oY, width-scale.x,height-scale.y);
+				//_context.fillRect(x-oX, y-oY, width-scale.x,height-scale.y);
+				_context.beginPath();
+				_context.moveTo(x-oX, y-oY);
+				_context.lineTo(x-oX + width-scale.x, y-oY);
+				_context.lineTo(x-oX + width-scale.x, y-oY + height-scale.y);
+				_context.lineTo(x-oX, y-oY + height-scale.y);
+				_context.fill();
 			}
 		}
 		_context.restore();

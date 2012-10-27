@@ -37,7 +37,6 @@
     
     this.ParralaxBackground = ParralaxBackground;
     
-// public	
 	/** Add a background image that scrolls
 	** options : background, speedMultX, speedMultY
 	*/

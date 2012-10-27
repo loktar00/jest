@@ -1,30 +1,10 @@
-/*** Controls the UI.. not sure on implementation.. either add a new canvas on top of the game canvas, 
-  ** or add the elements to the current renderer/update
-***/
-
 (function(){
 	function UI(options){
-		this.state = Game.currentState;
-		this.width = Game.bounds.width;
-		this.height = Game.bounds.height;
+		options = options || {}; 
+		this.state = options.state || Game.currentState;
+		this.width = options.width || Game.bounds.width;
+		this.height = options.height || Game.bounds.height;
 		
-		
-		if(typeof options !== 'undefined'){
-
-			// assign a ui to a state
-			if(typeof options.state !== 'undefined'){
-				this.state = options.state;
-			}
-			
-			// maybe you dont wan the UI the whole game area.. idk 
-			if(typeof options.width !== 'undefined'){
-				this.width = options.width;
-			}
-			
-			if(typeof options.height !== 'undefined'){
-				this.height = options.height;
-			}
-		}
 		
 		this.items = [];
 
@@ -40,7 +20,7 @@
 		 ** object, item to add button, sprite, ect.
 		 **/
 		addItem : function(object, uiIndex){
-		
+			
 			if(uiIndex === undefined){
 				uiIndex = 1;
 			}

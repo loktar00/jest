@@ -15,6 +15,12 @@
 		 **/
 		add : function(_resource, _type, _name){		
 			var resource = {'path' : _resource, 'type' : _type, 'name' : _name};
+			
+			// if the resource is an existing image
+			if(_resource.src){
+				resource.path = _resource.src
+			}
+			
 			this.loadingComplete = false;
 			
 			if(_name === undefined){
@@ -22,10 +28,20 @@
 			}
 					
 			if(_type == 1 || _type == "img" || _type == null){
-				resource.source = new Image();
+				if(_resource.nodeType === 1){
+					resource.source = _resource;
+				}else{
+					resource.source = new Image();
+				}
+				
 				this.resources.push({resource : resource, name : _name});
-				resource.source.onload = function(callback, res){callback.loadImg(callback, res)}(this, resource);
-				resource.source.src = _resource;
+				resource.source.onload = function(callback, res){resource.loaded = true; callback.loadImg(callback, res)}(this, resource);
+				
+				if(_resource.nodeType === 1){
+					resource.source.src = _resource.src;
+				}else{
+					resource.source.src = _resource;
+				}
 				
 			}else if(_type == 2 || _type == "audio"){
 				resource.source = new Audio();
@@ -44,6 +60,7 @@
 		loadImg : function(callback, resource){
 			if(resource.source.complete && resource.source.width){		
 				callback.loaded++;
+				
 				if(callback.loaded === callback.resources.length){
 					callback.loadingComplete = true;
 				}

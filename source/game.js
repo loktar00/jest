@@ -255,19 +255,19 @@
 		mouseWheel : function(event, self){
 			var dir = 0;
 			if ('wheelDelta' in event) {
-                if(Math.abs(event.wheelDelta) - event.wheelDelta === 0){
+				if(Math.abs(event.wheelDelta) - event.wheelDelta === 0){
 					dir = -1;
-                }else{
+				}else{
 					dir = 1;
-                }
-            }else if (event.detail) {
-                if(Math.abs(event.detail) - event.detail === 0){
+				}
+			}else if (event.detail) {
+				if(Math.abs(event.detail) - event.detail === 0){
 					dir = 1;
-                }else{
+				}else{
 					dir = -1;
-                }
-            }
-			
+				}
+			}
+
 			return dir;
 		},
 		// Handles Entities
@@ -285,23 +285,22 @@
 				object.live = true;
 			}
 			
+			this.renderFalse = renderFalse;
+			
 			if(state){
 				var foundState = this.getState(state);
 			
 				if(foundState){
 					foundState.entityList.push(object);
 					object.state = foundState;
-					
-					if(!renderFalse){
-						foundState.renderList.push(object);
-					}
 				}
 			}else{
 				this.entities.push(object);
 				object.state = this.currentState;
-				if(!renderFalse){
-					this.renderer.addToRenderer(object);
-				}
+			}
+			
+			if(!renderFalse){
+				this.renderer.addToRenderer(object);
 			}
 		},
 		
@@ -322,18 +321,18 @@
 					numEntities = entities.length;
 				}
 			}
-		
-			for (var id = 0; id < numEntities; id ++) {
-				if(entities[id] === object){
-					if(typeof object.kill != 'undefined'){
-						object.kill();
-					}
-					entities.splice(id,1);
-					this.renderer.removeFromRenderer(object);
-					delete object;
-					break;
-				}
+			
+			var item = entities.indexOf(object);
+			
+			if(typeof object.kill != 'undefined'){
+				object.kill();
 			}
+			
+			entities.splice(item,1);
+			
+			this.renderer.removeFromRenderer(object);
+			
+			delete object;
 		},
 		
 		/**

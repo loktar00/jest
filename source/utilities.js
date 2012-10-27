@@ -19,11 +19,11 @@ Object.merge = function () {
 	this.Utilities = Utilities;
 
 	Utilities.prototype.getRandomRange = function(_min, _max){   
-		return Math.floor(Math.random()*_max+_min);
+		return Math.floor(Math.random()*(_max-_min+1))+_min;
 	}
 	
 	Utilities.prototype.fGetRandomRange = function(_min, _max){   
-		return Math.random()*_max+_min;
+		return Math.random()*(_max-_min)+_min;
 	}
 	
 	Utilities.prototype.getDistance = function(a, b){
@@ -31,11 +31,20 @@ Object.merge = function () {
 	}
 	
 	Utilities.prototype.getAngle = function(a,b){
-		var tx = a.x - b.x,
-			ty = a.y - b.y,
+		var tx = b.x - a.x,
+			ty = b.y - a.y,
 			rad = Math.atan2(ty,tx),
 			angle = rad/Math.PI * 180;
+		
 		return angle;
+	}
+	
+	Utilities.prototype.getRad = function(a,b){
+		var tx = b.x - a.x,
+			ty = b.y - a.y,
+			rad = Math.atan2(ty,tx);
+		
+		return rad;
 	}
 	
 	Utilities.prototype.mouse = function(ev)
@@ -59,6 +68,12 @@ Object.merge = function () {
 	}
 	
 	Utilities.prototype.preCalcRotation = function(resource, numRotations, frameWidth, frameHeight, offsetAngle){
+		if(resource.nodeType === 1){
+			var img = resource;
+			resource = {};
+			resource.source = img;
+		}
+		
 		var tempCanvas = document.createElement("canvas"),
 			tempCtx = tempCanvas.getContext("2d"),
 			frameCanvas = document.createElement("canvas"),
@@ -90,6 +105,7 @@ Object.merge = function () {
 		}
 		//document.body.appendChild(tempCanvas);
 		resource.source = tempCanvas;
+		return tempCanvas;
 	}
 	
 	Utilities.prototype.colorize = function(resource, hsv){
@@ -207,3 +223,4 @@ Object.merge = function () {
 			return color;
 	}
 })();
+(function(p,n,j,t,q,u,v){function x(b){var c,d,a=this,f=b.length,e=0,i=a.c=a.d=a.f=0;a.a=[];a.e=[];for(f||(b=[f++]);e<j;)a.a[e]=e++;for(e=0;e<j;e++){c=a.a[e];i=g(i+c+b[e%f]);d=a.a[i];a.a[e]=d;a.a[i]=c}a.b=function(y){var h=a.a,k=g(a.c+1),l=h[k],m=g(a.d+l),o=h[m];h[k]=o;h[m]=l;for(var r=h[g(l+o)];--y;){k=g(k+1);l=h[k];m=g(m+l);o=h[m];h[k]=o;h[m]=l;r=r*j+h[g(l+o)]}a.c=k;a.d=m;return r};a.b(j)}function w(b,c,d,a){d=[];if(c&&typeof b=="object")for(a in b)if(a.indexOf("S")<5)try{d.push(w(b[a],c-1))}catch(f){}return d.length?d:""+b}function s(b,c,d,a){b+="";for(a=d=0;a<b.length;a++)c[g(a)]=g((d^=c[g(a)]*19)+b.charCodeAt(a));b="";for(a in c)b+=String.fromCharCode(c[a]);return b}function g(b){return b&j-1}n.seedrandom=function(b,c){var d=[],a;b=s(w(c?[b,p]:arguments.length?b:[(new Date).getTime(),p,window],3),d);a=new x(d);s(a.a,p);n.random=function(){for(var f=a.b(t),e=v,i=0;f<q;){f=(f+i)*j;e*=j;i=a.b(1)}for(;f>=u;){f/=2;e/=2;i>>>=1}return(f+i)/e};return b};v=n.pow(j,t);q=n.pow(2,q);u=q*2;s(n.random(),p)})([],Math,256,6,52);

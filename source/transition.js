@@ -1,7 +1,4 @@
-(function () {
-	var utilities = new Utilities();	
-	
-	//constructor
+(function () {	
     function Transition(options, callback)
     { 
 			// Defaults

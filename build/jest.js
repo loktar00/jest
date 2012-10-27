@@ -1,4 +1,3 @@
-// From mr. doob
 (function () {		
 	function Vector(x, y, z)
     {
@@ -152,11 +151,11 @@ Object.merge = function () {
 	this.Utilities = Utilities;
 
 	Utilities.prototype.getRandomRange = function(_min, _max){   
-		return Math.floor(Math.random()*_max+_min);
+		return Math.floor(Math.random()*(_max-_min+1))+_min;
 	}
 	
 	Utilities.prototype.fGetRandomRange = function(_min, _max){   
-		return Math.random()*_max+_min;
+		return Math.random()*(_max-_min)+_min;
 	}
 	
 	Utilities.prototype.getDistance = function(a, b){
@@ -164,11 +163,20 @@ Object.merge = function () {
 	}
 	
 	Utilities.prototype.getAngle = function(a,b){
-		var tx = a.x - b.x,
-			ty = a.y - b.y,
+		var tx = b.x - a.x,
+			ty = b.y - a.y,
 			rad = Math.atan2(ty,tx),
 			angle = rad/Math.PI * 180;
+		
 		return angle;
+	}
+	
+	Utilities.prototype.getRad = function(a,b){
+		var tx = b.x - a.x,
+			ty = b.y - a.y,
+			rad = Math.atan2(ty,tx);
+		
+		return rad;
 	}
 	
 	Utilities.prototype.mouse = function(ev)
@@ -192,6 +200,12 @@ Object.merge = function () {
 	}
 	
 	Utilities.prototype.preCalcRotation = function(resource, numRotations, frameWidth, frameHeight, offsetAngle){
+		if(resource.nodeType === 1){
+			var img = resource;
+			resource = {};
+			resource.source = img;
+		}
+		
 		var tempCanvas = document.createElement("canvas"),
 			tempCtx = tempCanvas.getContext("2d"),
 			frameCanvas = document.createElement("canvas"),
@@ -223,6 +237,7 @@ Object.merge = function () {
 		}
 		//document.body.appendChild(tempCanvas);
 		resource.source = tempCanvas;
+		return tempCanvas;
 	}
 	
 	Utilities.prototype.colorize = function(resource, hsv){
@@ -341,6 +356,7 @@ Object.merge = function () {
 	}
 })();
 (function(p,n,j,t,q,u,v){function x(b){var c,d,a=this,f=b.length,e=0,i=a.c=a.d=a.f=0;a.a=[];a.e=[];for(f||(b=[f++]);e<j;)a.a[e]=e++;for(e=0;e<j;e++){c=a.a[e];i=g(i+c+b[e%f]);d=a.a[i];a.a[e]=d;a.a[i]=c}a.b=function(y){var h=a.a,k=g(a.c+1),l=h[k],m=g(a.d+l),o=h[m];h[k]=o;h[m]=l;for(var r=h[g(l+o)];--y;){k=g(k+1);l=h[k];m=g(m+l);o=h[m];h[k]=o;h[m]=l;r=r*j+h[g(l+o)]}a.c=k;a.d=m;return r};a.b(j)}function w(b,c,d,a){d=[];if(c&&typeof b=="object")for(a in b)if(a.indexOf("S")<5)try{d.push(w(b[a],c-1))}catch(f){}return d.length?d:""+b}function s(b,c,d,a){b+="";for(a=d=0;a<b.length;a++)c[g(a)]=g((d^=c[g(a)]*19)+b.charCodeAt(a));b="";for(a in c)b+=String.fromCharCode(c[a]);return b}function g(b){return b&j-1}n.seedrandom=function(b,c){var d=[],a;b=s(w(c?[b,p]:arguments.length?b:[(new Date).getTime(),p,window],3),d);a=new x(d);s(a.a,p);n.random=function(){for(var f=a.b(t),e=v,i=0;f<q;){f=(f+i)*j;e*=j;i=a.b(1)}for(;f>=u;){f/=2;e/=2;i>>>=1}return(f+i)/e};return b};v=n.pow(j,t);q=n.pow(2,q);u=q*2;s(n.random(),p)})([],Math,256,6,52);
+(function(p,n,j,t,q,u,v){function x(b){var c,d,a=this,f=b.length,e=0,i=a.c=a.d=a.f=0;a.a=[];a.e=[];for(f||(b=[f++]);e<j;)a.a[e]=e++;for(e=0;e<j;e++){c=a.a[e];i=g(i+c+b[e%f]);d=a.a[i];a.a[e]=d;a.a[i]=c}a.b=function(y){var h=a.a,k=g(a.c+1),l=h[k],m=g(a.d+l),o=h[m];h[k]=o;h[m]=l;for(var r=h[g(l+o)];--y;){k=g(k+1);l=h[k];m=g(m+l);o=h[m];h[k]=o;h[m]=l;r=r*j+h[g(l+o)]}a.c=k;a.d=m;return r};a.b(j)}function w(b,c,d,a){d=[];if(c&&typeof b=="object")for(a in b)if(a.indexOf("S")<5)try{d.push(w(b[a],c-1))}catch(f){}return d.length?d:""+b}function s(b,c,d,a){b+="";for(a=d=0;a<b.length;a++)c[g(a)]=g((d^=c[g(a)]*19)+b.charCodeAt(a));b="";for(a in c)b+=String.fromCharCode(c[a]);return b}function g(b){return b&j-1}n.seedrandom=function(b,c){var d=[],a;b=s(w(c?[b,p]:arguments.length?b:[(new Date).getTime(),p,window],3),d);a=new x(d);s(a.a,p);n.random=function(){for(var f=a.b(t),e=v,i=0;f<q;){f=(f+i)*j;e*=j;i=a.b(1)}for(;f>=u;){f/=2;e/=2;i>>>=1}return(f+i)/e};return b};v=n.pow(j,t);q=n.pow(2,q);u=q*2;s(n.random(),p)})([],Math,256,6,52);
 
 (function () {	
 	function Resource(_resource, _type){
@@ -375,6 +391,12 @@ Object.merge = function () {
 		 **/
 		add : function(_resource, _type, _name){		
 			var resource = {'path' : _resource, 'type' : _type, 'name' : _name};
+			
+			// if the resource is an existing image
+			if(_resource.src){
+				resource.path = _resource.src
+			}
+			
 			this.loadingComplete = false;
 			
 			if(_name === undefined){
@@ -382,10 +404,20 @@ Object.merge = function () {
 			}
 					
 			if(_type == 1 || _type == "img" || _type == null){
-				resource.source = new Image();
+				if(_resource.nodeType === 1){
+					resource.source = _resource;
+				}else{
+					resource.source = new Image();
+				}
+				
 				this.resources.push({resource : resource, name : _name});
-				resource.source.onload = function(callback, res){callback.loadImg(callback, res)}(this, resource);
-				resource.source.src = _resource;
+				resource.source.onload = function(callback, res){resource.loaded = true; callback.loadImg(callback, res)}(this, resource);
+				
+				if(_resource.nodeType === 1){
+					resource.source.src = _resource.src;
+				}else{
+					resource.source.src = _resource;
+				}
 				
 			}else if(_type == 2 || _type == "audio"){
 				resource.source = new Audio();
@@ -404,6 +436,7 @@ Object.merge = function () {
 		loadImg : function(callback, resource){
 			if(resource.source.complete && resource.source.width){		
 				callback.loaded++;
+				
 				if(callback.loaded === callback.resources.length){
 					callback.loadingComplete = true;
 				}
@@ -448,7 +481,6 @@ Object.merge = function () {
 	}
 })();
 (function () {
-	//constructor
     function Label(options)
     {   
 		if(options !== undefined){
@@ -773,19 +805,19 @@ Object.merge = function () {
 		mouseWheel : function(event, self){
 			var dir = 0;
 			if ('wheelDelta' in event) {
-                if(Math.abs(event.wheelDelta) - event.wheelDelta === 0){
+				if(Math.abs(event.wheelDelta) - event.wheelDelta === 0){
 					dir = -1;
-                }else{
+				}else{
 					dir = 1;
-                }
-            }else if (event.detail) {
-                if(Math.abs(event.detail) - event.detail === 0){
+				}
+			}else if (event.detail) {
+				if(Math.abs(event.detail) - event.detail === 0){
 					dir = 1;
-                }else{
+				}else{
 					dir = -1;
-                }
-            }
-			
+				}
+			}
+
 			return dir;
 		},
 		// Handles Entities
@@ -803,23 +835,22 @@ Object.merge = function () {
 				object.live = true;
 			}
 			
+			this.renderFalse = renderFalse;
+			
 			if(state){
 				var foundState = this.getState(state);
 			
 				if(foundState){
 					foundState.entityList.push(object);
 					object.state = foundState;
-					
-					if(!renderFalse){
-						foundState.renderList.push(object);
-					}
 				}
 			}else{
 				this.entities.push(object);
 				object.state = this.currentState;
-				if(!renderFalse){
-					this.renderer.addToRenderer(object);
-				}
+			}
+			
+			if(!renderFalse){
+				this.renderer.addToRenderer(object);
 			}
 		},
 		
@@ -840,18 +871,18 @@ Object.merge = function () {
 					numEntities = entities.length;
 				}
 			}
-		
-			for (var id = 0; id < numEntities; id ++) {
-				if(entities[id] === object){
-					if(typeof object.kill != 'undefined'){
-						object.kill();
-					}
-					entities.splice(id,1);
-					this.renderer.removeFromRenderer(object);
-					delete object;
-					break;
-				}
+			
+			var item = entities.indexOf(object);
+			
+			if(typeof object.kill != 'undefined'){
+				object.kill();
 			}
+			
+			entities.splice(item,1);
+			
+			this.renderer.removeFromRenderer(object);
+			
+			delete object;
 		},
 		
 		/**
@@ -961,7 +992,7 @@ Object.merge = function () {
 	}
 
 	this.Renderer = Renderer;
-	
+
 	Renderer.prototype = {
 		redraw : function ()
 		{
@@ -985,10 +1016,11 @@ Object.merge = function () {
 		 **/
 		removeFromRenderer : function (object)
 		{
-			for (var id in this.renderList) {
-				if(this.renderList[id] === object){
-					this.renderList.splice(id,1);
-				}
+			var list = this.renderList,
+				objIndex = list.indexOf(object);
+				
+			if(objIndex !== -1){
+				list.splice(list.indexOf(object), 1);
 			}
 		}
 	}
@@ -996,38 +1028,35 @@ Object.merge = function () {
 	// Todo: I dont like this. fix the sorting, right now sorts on y, but could potentially sort based on z
     function render ()
     {	
-		this.context.clearRect(0,0,this.width,this.height);
-		//this.renderList.sort(function(a,b){return b.y-a.y});
+	this.context.clearRect(0,0,this.width,this.height);
+	//this.renderList.sort(function(a,b){return b.y-a.y});
+	
+	this.renderList.sort(function(a,b){
+		if(a.bg && b.bg){
+			return b.bgIndex - a.bgIndex;
+		}else if(a.ui && b.ui){
+			return b.uiIndex - a.uiIndex;
+		}else if(a.bg || b.ui){
+			return 1;
+		}else if(b.bg || a.ui){
+			return -1;
+		}else if(a.pos && b.pos){
+			return a.pos.z - b.pos.z;
+		}	
+		return 0;
+	});
 		
-		this.renderList.sort(function(a,b){
-			if(a.bg && b.bg){
-				return b.bgIndex - a.bgIndex;
-			}else if(a.ui && b.ui){
-				return b.uiIndex - a.uiIndex;
-			}else if(a.bg || b.ui){
-				return 1;
-			}else if(b.bg || a.ui){
-				return -1;
-			}else if(a.pos && b.pos){
-				return a.pos.z - b.pos.z;
-			}	
-			return 0;
-		});
-			
-	 	var id =  this.renderList.length;
-		while(id--){
-			var curObject = this.renderList[id];	
-			if(curObject.visible){
-				curObject.render(this.context);
-			}
+	var id =  this.renderList.length;
+	while(id--){
+		var curObject = this.renderList[id];	
+		if(curObject.visible){
+			curObject.render(this.context);
 		}
+	}
     }
 
 })();
-(function () {
-	var utilities = new Utilities();	
-	
-	//constructor
+(function () {	
     function Sprite(options)
     {   
 		options = options || {}; 
@@ -1098,11 +1127,13 @@ Object.merge = function () {
 		this.angle = options.angle || 0;
 		this.thrust = options.thrust || 0;
 		this.color = options.color || {r:255,g:255,b:255};
+		this.alpha = 255;
 		this.clickable = options.clickable || false;
 		
 		// for referencing a list of entities or sprites its a part of
-		if(options.list){
-			this.list = options.list
+		if(options.list && options.list.length != 'undefined'){
+			this.list = options.list;
+			this.list.push(this);
 		}else{
 			this.list = [];
 		}
@@ -1179,6 +1210,15 @@ Object.merge = function () {
 		},
 		kill : function(){
 			// do something before its "dead"
+			if(this.list.length > 0){
+				var listItem = this.list.length,
+					list = this.list,
+					item = list.indexOf(this);
+					
+				if(item){
+					list.splice(item,1);
+				}
+			}
 		},
 		// Draw
 		render : function(_context){		
@@ -1218,16 +1258,17 @@ Object.merge = function () {
 		this.height = options.height || Game.bounds.height;
 		this.pos = options.pos || {x:0,y:0,z:0};
 		
+		this.particles = [];
+		
 		Game.addEntity(this, true);
     }
     
     this.Emitter = Emitter;
     
-// public
 	Emitter.prototype.getParticles = function()
     {	
 		return this.particles;
-    };
+    }
 	
 	Emitter.prototype.addGroup = function(particleGroup){
 		particleGroup.startTime = new Date().getTime();
@@ -1236,10 +1277,12 @@ Object.merge = function () {
 			particleGroup.delay = 0;
 		}
 		this.particleGroups.push(particleGroup);
-	};
-
-	// updates the stars
-	// This is not proper. need to fix where stars update handles this
+	}
+	
+	Emitter.prototype.kill = function(){
+		this.particleGroups = [];
+	}
+	
     Emitter.prototype.update = function(deltaTime)
     {	
 		this.lastUpdate = new Date().getTime();
@@ -1247,6 +1290,10 @@ Object.merge = function () {
 		var particleGroups = this.particleGroups,
 			utilities = this.utilities,
 			pg = particleGroups.length;
+			
+		if(pg === 0){
+			this.live = false;
+		}
 		
 		while(pg--){
 			if(this.lastUpdate - particleGroups[pg].lastUpdate >= 1000/particleGroups[pg].rate && this.lastUpdate > particleGroups[pg].startTime + particleGroups[pg].delay && Game.currentFrameRate > 30){
@@ -1282,9 +1329,15 @@ Object.merge = function () {
 							}
 						}
 						
-						var curParticle = new Particle(particleGroups[pg]);						
+						// should add a pool here and recycle particles for perf
+						particleGroups[pg].list = this.particles;
+						var curParticle = new Particle(particleGroups[pg]);		
+						this.particles.push(curParticle);
+						
 						Game.addEntity(curParticle);
 					}
+				}else{
+					this.particleGroups.splice(pg, 1);
 				}
 			}
 			
@@ -1294,7 +1347,7 @@ Object.merge = function () {
 (function () {	
     function Particle(options)
     {   
-Sprite.call(this, options);	
+		Sprite.call(this, options);	
 		Game.particleCount++;
 		
 		this.lifeTime = 1000; // 1 second default lifetime
@@ -1488,14 +1541,26 @@ Sprite.call(this, options);
 				_context.drawImage(this.resource.source,this.startX,this.startY,width,height, x-oX, y-oY, width-scale.x,height-scale.y);
 			}
 		}else{
-			var color = this.color;
-			_context.fillStyle = "rgba(" + color.r + "," + color.g + "," + color.b + "," + this.alpha + ")";
+			var color = this.color || {r:0,g:0,b:0};
+			_context.fillStyle = "rgba(" + color.r+ "," + color.g + "," + color.b + "," + this.alpha + ")";
 			if(this.drawAngle !== 0){
 				_context.translate(x, y);
 				_context.rotate(rotAngle);
-				_context.fillRect(-oX,-oY,width-scale.x,height-scale.y);
+				_context.beginPath();
+				_context.moveTo(-oX, -oY);
+				_context.lineTo(-oX + width-scale.x, -oY);
+				_context.lineTo(-oX + width-scale.x, -oY + height-scale.y);
+				_context.lineTo(-oX, -oY + height-scale.y);
+				_context.fill();
+				//_context.fillRect(-oX,-oY,width-scale.x,height-scale.y);
 			}else{
-				_context.fillRect(x-oX, y-oY, width-scale.x,height-scale.y);
+				//_context.fillRect(x-oX, y-oY, width-scale.x,height-scale.y);
+				_context.beginPath();
+				_context.moveTo(x-oX, y-oY);
+				_context.lineTo(x-oX + width-scale.x, y-oY);
+				_context.lineTo(x-oX + width-scale.x, y-oY + height-scale.y);
+				_context.lineTo(x-oX, y-oY + height-scale.y);
+				_context.fill();
 			}
 		}
 		_context.restore();
@@ -1512,33 +1577,13 @@ Sprite.call(this, options);
 	}
 	
 })();
-/*** Controls the UI.. not sure on implementation.. either add a new canvas on top of the game canvas, 
-  ** or add the elements to the current renderer/update
-***/
-
 (function(){
 	function UI(options){
-		this.state = Game.currentState;
-		this.width = Game.bounds.width;
-		this.height = Game.bounds.height;
+		options = options || {}; 
+		this.state = options.state || Game.currentState;
+		this.width = options.width || Game.bounds.width;
+		this.height = options.height || Game.bounds.height;
 		
-		
-		if(typeof options !== 'undefined'){
-
-			// assign a ui to a state
-			if(typeof options.state !== 'undefined'){
-				this.state = options.state;
-			}
-			
-			// maybe you dont wan the UI the whole game area.. idk 
-			if(typeof options.width !== 'undefined'){
-				this.width = options.width;
-			}
-			
-			if(typeof options.height !== 'undefined'){
-				this.height = options.height;
-			}
-		}
 		
 		this.items = [];
 
@@ -1554,7 +1599,7 @@ Sprite.call(this, options);
 		 ** object, item to add button, sprite, ect.
 		 **/
 		addItem : function(object, uiIndex){
-		
+			
 			if(uiIndex === undefined){
 				uiIndex = 1;
 			}
@@ -1704,7 +1749,6 @@ Sprite.call(this, options);
     
     this.ParralaxBackground = ParralaxBackground;
     
-// public	
 	/** Add a background image that scrolls
 	** options : background, speedMultX, speedMultY
 	*/
@@ -1961,10 +2005,7 @@ Sprite.call(this, options);
 		}
 	}	
 })();
-(function () {
-	var utilities = new Utilities();	
-	
-	//constructor
+(function () {	
     function Transition(options, callback)
     { 
 			// Defaults

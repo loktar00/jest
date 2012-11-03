@@ -58,7 +58,7 @@
 		}else if(b.bg || a.ui){
 			return -1;
 		}else if(a.pos && b.pos){
-			return a.pos.z - b.pos.z;
+			return b.pos.z - a.pos.z;
 		}	
 		return 0;
 	});

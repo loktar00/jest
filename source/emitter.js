@@ -35,6 +35,48 @@
 		this.particleGroups.push(particleGroup);
 	}
 	
+	Emitter.prototype.removeGroup = function(group){
+		var len = this.particleGroups.length;
+		
+		if(typeOf(group) == "String"){
+			while(len--){
+				if(group === this.particleGroups[len].name){
+					this.particleGroups.splice(len, 1);
+					return;
+				}
+			}
+		}else{
+			while(len--){
+				if(group === this.particleGroups[len]){
+					this.particleGroups.splice(len, 1);
+					return;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	Emitter.prototype.getGroup = function(group){
+		var len = this.particleGroups.length;
+		
+		if(typeOf(group) == "String"){
+			while(len--){
+				if(group === this.particleGroups[len].name){
+					return this.particleGroups[len];
+				}
+			}
+		}else{
+			while(len--){
+				if(group === this.particleGroups[len]){
+					return this.particleGroups[len];
+				}
+			}
+		}
+		
+		return false;
+	}
+	
 	Emitter.prototype.kill = function(){
 		this.particleGroups = [];
 	}
@@ -46,11 +88,7 @@
 		var particleGroups = this.particleGroups,
 			utilities = this.utilities,
 			pg = particleGroups.length;
-			
-		if(pg === 0){
-			this.live = false;
-		}
-		
+					
 		while(pg--){
 			if(this.lastUpdate - particleGroups[pg].lastUpdate >= 1000/particleGroups[pg].rate && this.lastUpdate > particleGroups[pg].startTime + particleGroups[pg].delay && Game.currentFrameRate > 30){
 				particleGroups[pg].lastUpdate = this.lastUpdate;
@@ -65,6 +103,7 @@
 					while(p--){
 						particleGroups[pg].x = this.pos.x;
 						particleGroups[pg].y = this.pos.y;
+						particleGroups[pg].z = this.pos.z;
 						
 						var thrustRange = particleGroups[pg].thrustRange,
 							angleRange = particleGroups[pg].angleRange;

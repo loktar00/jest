@@ -11,7 +11,7 @@ function concat(fileList, distPath) {
     var out = fileList.map(function(filePath){
             return _fs.readFileSync(filePath, FILE_ENCODING);
         });
-		
+
     _fs.writeFileSync(distPath, out.join(EOL), FILE_ENCODING);
     console.log(' '+ distPath +' built.');
 }
@@ -31,13 +31,12 @@ function uglify(srcPath, distPath) {
 }
 
 concat([
+    'source/seedRandom.js',
+    'source/game.js',
     'source/vector.js',
     'source/utilities.js',
-    'source/seedRandom.js',
-    'source/resource.js',
     'source/resourceManager.js',
     'source/label.js',
-    'source/game.js',
     'source/renderer.js',
     'source/sprite.js',
     'source/emitter.js',
@@ -47,8 +46,7 @@ concat([
     'source/ui/cursor.js',
     'source/parralaxBackground.js',
     'source/background.js',
-    'source/transition.js',
-    'source/background.js',
+    'source/transition.js'
 ], DIST_FILE_PATH);
 
 uglify(DIST_FILE_PATH, MIN_FILE);

@@ -136,8 +136,6 @@ Jest.prototype = {
         this.leftDown = false;
         this.rightDown = false;
         this.midDown = false;
-
-        this.update();
     },
     /**
      * Jest.update()

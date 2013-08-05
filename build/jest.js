@@ -434,8 +434,6 @@ Jest.prototype = {
         this.leftDown = false;
         this.rightDown = false;
         this.midDown = false;
-
-        this.update();
     },
     /**
      * Jest.update()
@@ -624,7 +622,7 @@ Jest.prototype = {
 
         var item = entities.indexOf(object);
 
-        if(typeof object.kill != 'undefined'){
+        if(typeof object.kill !== 'undefined'){
             object.kill();
         }
 
@@ -1761,34 +1759,34 @@ Jest.Particle.prototype.colorFade = function(startColor, endColor, totalSteps, s
 };
 (function(){
 	function UI(options){
-		options = options || {}; 
+		options = options || {};
 		this.state = options.state || Game.currentState;
 		this.width = options.width || Game.bounds.width;
 		this.height = options.height || Game.bounds.height;
-		
-		
+
+
 		this.items = [];
 
-		// add to the entity list, and call the render since we are going to override the main render to make sure UI items are always on top. 
+		// add to the entity list, and call the render since we are going to override the main render to make sure UI items are always on top.
 		Game.addEntity(this, true, this.state);
 	}
-	
+
 	this.UI = UI;
-	
+
 	UI.prototype = {
 		/**
 		 ** UI.addItem
 		 ** object, item to add button, sprite, ect.
 		 **/
 		addItem : function(object, uiIndex){
-			
+
 			if(uiIndex === undefined){
 				uiIndex = 1;
 			}
-			
+
 			object.ui = true;
 			object.uiIndex = uiIndex;
-			
+
 			// add it to the update/render of the ui's parent state
 			Game.addEntity(object, false, this.state);
 			this.items.push(object);
@@ -1815,7 +1813,7 @@ Jest.Particle.prototype.colorFade = function(startColor, endColor, totalSteps, s
 		 ** UI.update
 		 **/
 		update : function(deltaTime){
-			
+
 		},
 		/**
 		 ** UI.render

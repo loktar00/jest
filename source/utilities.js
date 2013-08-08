@@ -44,13 +44,13 @@ Jest.prototype.Utilities = {
             y:ev.clientY + document.body.scrollTop  - document.body.clientTop
         };
     },
-    getGradColor : function(startColor, endColor, height, width){
-          var scale = -(width-height)/6,
-              r = startColor.r + scale*(endColor.r - startColor.r);
-              b = startColor.b + scale*(endColor.b - startColor.b);
-              g = startColor.g + scale*(endColor.g - startColor.g);
+    getGradColor : function(startColor, endColor, step, steps) {
+        var scale = step / steps,
+            r = startColor.r + scale * (endColor.r - startColor.r),
+            b = startColor.b + scale * (endColor.b - startColor.b),
+            g = startColor.g + scale * (endColor.g - startColor.g);
 
-          return "rgb(" +  Math.floor( Math.min(255,  Math.max(0, r))) + "," +  Math.floor( Math.min(255,  Math.max(0, g))) + "," +  Math.floor( Math.min(255,  Math.max(0, b))) + ")";
+        return "rgb(" + Math.floor(Math.min(255, Math.max(0, r))) + "," + Math.floor(Math.min(255, Math.max(0, g))) + "," + Math.floor(Math.min(255, Math.max(0, b))) + ")";
     },
     preCalcRotation : function(resource, numRotations, frameWidth, frameHeight, offsetAngle){
         if(resource.nodeType === 1){

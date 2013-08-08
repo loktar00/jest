@@ -162,20 +162,23 @@ Jest.Sprite.prototype = {
     },
     // Draw
     render : function(context){
-        context.save();
-        if(!this.shape){
+        if(this.pos.x-this.width < Game.bounds.width && this.pos.x+this.width > 0 
+            && this.pos.y+this.height > 0 && this.pos.y-this.height < Game.bounds.height){
+            context.save();
+            
+            if(!this.shape){
 
-            // render to the nearest full pixel
-            var cX = (0.5 + (this.pos.x-this.origin.x)) << 0,
-                cY = (0.5 + (this.pos.y-this.origin.y)) << 0;
+                // render to the nearest full pixel
+                var cX = (0.5 + (this.pos.x-this.origin.x)) << 0,
+                    cY = (0.5 + (this.pos.y-this.origin.y)) << 0;
 
-            context.drawImage(this.resource.source,this.startX,this.startY,this.width,this.height, cX, cY, this.width,this.height);
-        }else{
-            var color = this.color;
-            context.fillStyle = "rgba(" + color.r + "," + color.g + "," + color.b + "," + this.alpha + ")";
-            context.fillRect(this.pos.x-this.origin.x, this.pos.y-this.origin.y, this.width,this.height);
+                context.drawImage(this.resource.source,this.startX,this.startY,this.width,this.height, cX, cY, this.width,this.height);
+            }else{
+                context.fillStyle = "rgba(" + this.color.r + "," + this.color.g + "," + this.color.b + "," + this.alpha + ")";
+                context.fillRect(this.pos.x-this.origin.x, this.pos.y-this.origin.y, this.width,this.height);
+            }
+            context.restore();
         }
-        context.restore();
     },
     clicked : function(){
         // Object was clicked do some stuff brah

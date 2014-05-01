@@ -1,0 +1,13 @@
+{
+  "name": "Jest",
+  "description": "Javascript and Canvas game framework",
+  "author": "Loktar <loktar00@gmail.com>",
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "~3.6.2",
+    "gulp-concat": "~2.2.0",
+    "gulp-uglify": "~0.2.1",
+    "gulp-jshint": "~1.5.5",
+    "gulp-rename": "~1.2.0"
+  }
+}

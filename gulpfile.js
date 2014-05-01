@@ -2,8 +2,17 @@ var gulp    =   require('gulp'),
     jshint  =   require('gulp-jshint'),
     uglify  =   require('gulp-uglify'),
     rename  =   require('gulp-rename'),
-    concat  =   require('gulp-concat');
+    concat  =   require('gulp-concat'),
+    markdox =   require('gulp-markdox');
 
+gulp.task('doc', function(){
+    gulp.src('source/**/*.js')
+    .pipe(markdox())
+    .pipe(rename({
+        extname : ".md"
+    }))
+    .pipe(gulp.dest('docs'));
+});
 
 gulp.task('build', function() {
     return gulp.src('source/**/*.js')

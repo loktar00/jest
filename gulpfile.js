@@ -5,6 +5,25 @@ var gulp    =   require('gulp'),
     concat  =   require('gulp-concat'),
     markdox =   require('gulp-markdox');
 
+var sources = [
+        "source/game.js",
+        "source/seedRandom.js",
+        "source/vector.js",
+        "source/utilities.js",
+        "source/resourceManager.js",
+        "source/label.js",
+        "source/renderer.js",
+        "source/sprite.js",
+        "source/emitter.js",
+        "source/particle.js",
+        "source/ui/ui.js",
+        "source/ui/button.js",
+        "source/ui/cursor.js",
+        "source/parralaxBackground.js",
+        "source/background.js",
+        "source/transition.js"
+    ];
+
 gulp.task('doc', function(){
     gulp.src('source/**/*.js')
     .pipe(markdox())
@@ -15,7 +34,7 @@ gulp.task('doc', function(){
 });
 
 gulp.task('build', function() {
-    return gulp.src('source/**/*.js')
+    return gulp.src(sources)
         .pipe(concat('jest.js'))
         .pipe(gulp.dest('release'))
         .pipe(rename({suffix: '.min'}))

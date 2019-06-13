@@ -2,13 +2,19 @@
   "name": "Jest",
   "description": "Javascript and Canvas game framework",
   "author": "Loktar <loktar00@gmail.com>",
-  "dependencies": {},
+  "scripts": {
+    "start:dev": "webpack-dev-server"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.2.5"
+  },
   "devDependencies": {
-    "gulp": "~3.6.2",
-    "gulp-concat": "~2.2.0",
-    "gulp-uglify": "~0.2.1",
-    "gulp-jshint": "~1.5.5",
-    "gulp-rename": "~1.2.0",
-    "gulp-markdox": "~0.1.0"
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "babel-loader": "^8.0.5",
+    "webpack": "^4.28.4",
+    "webpack-cli": "^3.2.1",
+    "webpack-dev-server": "^3.1.14"
   }
 }

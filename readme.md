@@ -19,7 +19,7 @@ Jest's features include
 -   Full featured particle engine
 -   Mouse and keyboard events.
 
-[Examples](http://loktar00.github.com/jest/)
+~~[Examples](http://loktar00.github.com/jest/)~~
 
 Some projects using JEST
 ---------------------

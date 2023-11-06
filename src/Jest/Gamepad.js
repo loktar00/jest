@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const buttonMap = {
     cross: 0,
     a: 0,
@@ -10,7 +11,9 @@ const buttonMap = {
     l1: 4,
     r1: 5,
     lt: 6,
+    l2: 6,
     rt: 7,
+    r2: 7,
     select: 8,
     share: 8,
     start: 9,
@@ -31,25 +34,44 @@ export default class Gamepad {
         this.buttons = pad.buttons;
         this.axes = pad.axes;
     }
+
     buttonPressed(button) {
         return this.buttons[buttonMap[button]].value;
     }
+
     axis(direction) {
         if (direction === 'left') {
             return {
                 x: this.axes[0],
                 y: this.axes[1]
-            }
+            };
         }
 
         if (direction === 'right') {
             return {
                 x: this.axes[2],
                 y: this.axes[3]
-            }
+            };
         }
+
+        return {
+            x: null,
+            y: null
+        };
     }
-    update(deltaTime) {
+
+    rumble(duration) {
+        navigator
+            .getGamepads()
+            [this.id].vibrationActuator.playEffect('dual-rumble', {
+                startDelay: 0,
+                duration,
+                weakMagnitude: 1.0,
+                strongMagnitude: 1.0
+            });
+    }
+
+    update() {
         const pad = navigator.getGamepads()[this.id];
         this.buttons = pad.buttons;
         this.axes = pad.axes;

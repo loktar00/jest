@@ -1,8 +1,6 @@
-JEST
-====================
+# JEST
 
-Just another JavaScript game framework
----------------------
+## Just another JavaScript game framework
 
 Jest provides a way to rapidly create JavaScript (HTML5) games using the canvas element.
 
@@ -21,13 +19,12 @@ Jest's features include
 
 ~~[Examples](http://loktar00.github.com/jest/)~~
 
-Some projects using JEST
----------------------
+## Some projects using JEST
 
-* [Grapple Hero](http://www.grapplehero.com)
-* [Death Match](http://www.somethinghitme.com/projects/match/)
-* [SOPA game](http://www.somethinghitme.com/projects/sopa/)
-* [Nbody sim](http://www.somethinghitme.com/projects/neworbit/)
+-   [Grapple Hero](http://www.grapplehero.com)
+-   [Death Match](http://www.somethinghitme.com/projects/match/)
+-   [SOPA game](http://www.somethinghitme.com/projects/sopa/)
+-   [Nbody sim](http://www.somethinghitme.com/projects/neworbit/)
 
 Things that still need to be done
 

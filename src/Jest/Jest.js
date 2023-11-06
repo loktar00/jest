@@ -1,10 +1,8 @@
-import Jest from './Index';
-import Renderer from './Renderer';
-import ResourceManager from './ResourceManager';
-import Vector from './Vector';
-import Sprite from './Sprite';
-import Emitter from './Emitter';
-import Particle from './Particle';
-import Label from './Label';
+import Jest from './Index.js';
+import Renderer from './Renderer.js';
+import ResourceManager from './ResourceManager.js';
+import Vector from './Vector.js';
+import Sprite from './Sprite.js';
+import Label from './Label.js';
 
-export {Jest, Renderer, ResourceManager, Vector, Sprite, Emitter, Particle, Label};
+export { Jest, Renderer, ResourceManager, Vector, Sprite, Label };

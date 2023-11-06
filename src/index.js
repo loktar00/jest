@@ -1,16 +1,20 @@
-import {Jest, Emitter} from './Jest/Jest';
-import GameState from './states/GameState';
+import { Jest } from './Jest/Jest.js';
+import GameState from './states/gamestate.js';
 
 Jest.setup({
-    canvas: "jestCanvas",
-    width: window.innerWidth,
-    height: window.innerHeight,
+    canvas: 'jestCanvas',
+    width: 1920,
+    height: 1080,
     frameRate: Math.ceil(1000 / 60),
     showFrameRate: true
 });
 
-Jest.setupGame = function () {
-    const gamestate = new GameState(Jest);
+Jest.load = function load() {
+    this.loaded();
+};
+
+Jest.setupGame = function setupGame() {
+    new GameState(Jest);
     this.update();
 };
 

@@ -1,4 +1,4 @@
-import {Sprite} from '../Jest/Jest';
+import { Sprite, Jest } from '../Jest/Jest.js';
 
 export default class Player extends Sprite {
     constructor(options) {
@@ -16,6 +16,7 @@ export default class Player extends Sprite {
 
         this.guardDistance = 200;
     }
+
     update(deltaTime) {
         super.update(deltaTime);
         if (Jest.buttonPressed(0, 'a')) {
@@ -36,9 +37,9 @@ export default class Player extends Sprite {
         const x = centerX - targetX;
         const y = centerY - targetY;
 
-        const radians = Math.atan2(y,x);
-        
+        const radians = Math.atan2(y, x);
+
         this.pos.x = centerX - this.guardDistance * Math.cos(radians);
         this.pos.y = centerY - this.guardDistance * Math.sin(radians);
     }
-};
+}

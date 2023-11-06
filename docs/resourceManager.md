@@ -1,8 +1,6 @@
-
-
 <!-- Start D:\xampp\htdocs\jest\source\resourceManager.js -->
 
-Resourcemanager.add(_resource, _type)
+Resourcemanager.add(\_resource, \_type)
 object resource, String/Number, String
 adds a new resource for use and begins the process of loading
 
@@ -19,4 +17,3 @@ string/text
 returns the resource by name if found
 
 <!-- End D:\xampp\htdocs\jest\source\resourceManager.js -->
-

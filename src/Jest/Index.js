@@ -1,8 +1,8 @@
-import ResourceManager from './ResourceManager';
-import Renderer from './Renderer';
-import Label from './Label';
-import Gamepad from './Gamepad';
-import Utilities from './Utilities';
+import ResourceManager from './ResourceManager.js';
+import Renderer from './Renderer.js';
+import Label from './Label.js';
+import Gamepad from './Gamepad.js';
+import Utilities from './Utilities.js';
 
 class Jest {
     constructor() {
@@ -33,24 +33,23 @@ class Jest {
         // Keep track of how many particles we have on screen
         this.particleCount = 0;
 
-        this.frameRate = this.frameRate;
-        this.bounds = this.bounds;
-        this.particleCount = this.particleCount;
+        // Global scale to adjust based on the size of the canvas
+        this.jestScale = 1;
+
         this.utilities = Utilities;
-        this.states = this.states;
-        this.currentState = this.currentState;
         this.focused = true;
         this.keys = [];
         this.gamePads = [];
     }
-    setup(options) {
-        options = options || {};
-        this.renderCanvas = options.canvas || "playCanvas";
+
+    setup(options = {}) {
+        this.renderCanvas = options.canvas || 'playCanvas';
         this.width = options.width || 320;
         this.height = options.height || 240;
+        this.aspectRatio = this.width / this.height;
         this.frameRate = options.frameRate || Math.ceil(1000 / 60);
         this.showFrameRate = options.showFrameRate || false;
-        this.stateName = options.stateName || "0";
+        this.stateName = options.stateName || '0';
 
         // game bounds
         this.bounds = {
@@ -60,85 +59,89 @@ class Jest {
             height: this.height
         };
     }
+
     /**
      * Jest.load()
      *
      * prepares the canvas for rendering, and starts the update process
-     **/
+     * */
     load() {
-        this.loaded(this);
+        this.loaded();
     }
+
     /**
      * Jest.loaded()
      * object event
      * makes sure everything is loaded until continuing
-     **/
-    loaded(game) {
+     * */
+    loaded() {
         if (this.resourceManager.loadingComplete) {
-            game.init();
+            this.init();
             return true;
-        } 
-        
+        }
+
         setTimeout(() => {
-            this.loaded(game);
+            this.loaded();
         }, 100);
         return false;
     }
+
     /**
      * Jest.update()
      *
      * Main update loop for the game, updates all objects, and calls the renderer.
-     **/
+     * */
     update() {
-        const curTime = Date.now()
+        const curTime = Date.now();
 
         this.deltaTime = curTime - this.lastTime;
         this.lastTime = curTime;
-        this.accTime += this.deltaTime;
+        // this.accTime += this.deltaTime;
 
         // Limit the delta queing
-        if (this.accTime > 60) {
-            this.accTime = 0;
-        }
+        // if (this.accTime > 60) {
+        //     this.accTime = 0;
+        // }
 
-        while (this.accTime > this.timeStep) {
-            this.accTime -= this.timeStep;
-            const entities = this.entities;
-            const entLen = this.entities.length;
-            
-            this.gamePads.forEach(pad => pad.update());
+        this.gamePads.forEach((pad) => pad.update());
 
-            while (entLen--) {
-                const entity = entities[entLen];
-                if (entity !== undefined) {
-                    if (entity.live) {
-                        entity.update(this.timeStep / 100);
-                    } else {
-                        this.removeEntity(entity);
-                    }
+        // while (this.accTime > this.timeStep) {
+        // this.accTime -= this.timeStep;
+        const { entities } = this;
+        let entLen = this.entities.length;
+
+        while (entLen--) {
+            const entity = entities[entLen];
+            if (entity !== undefined) {
+                if (entity.live) {
+                    entity.update(this.deltaTime / 1000);
+                } else {
+                    this.removeEntity(entity);
                 }
             }
         }
+        // }
 
         this.renderer.redraw();
-        this.frameRateLabel.text = Math.round(1000 / this.deltaTime) + " fps";
+        this.frameRateLabel.text = `${Math.round(1000 / this.deltaTime)} fps`;
         this.currentFrameRate = Math.round(1000 / this.deltaTime);
 
         requestAnimationFrame(() => {
             this.update();
         });
     }
+
     /**
      * Jest.init()
      *
      * prepares the canvas for rendering, and starts the update process
-     **/
+     * */
     init() {
         // base for starting, presetup ect.
         this.renderCanvas = document.getElementById(this.renderCanvas);
 
         if (this.renderCanvas === null) {
-            this.renderCanvas = document.createElement("canvas");
+            this.renderCanvas = document.createElement('canvas');
         }
 
         // disable dragging
@@ -153,44 +156,123 @@ class Jest {
             }
         });
 
-        this.renderCanvas.addEventListener('click', (event) => {
-            this.focused = true;
-            this.clicked(event);
-        }, false);
-        this.renderCanvas.addEventListener('mousemove', (event) => this.mouseMove(event), false);
-        this.renderCanvas.addEventListener('mousedown', (event) => this.mouseDown(event), false);
-        this.renderCanvas.addEventListener('mouseup', (event) => this.mouseUp(event), false);
+        this.renderCanvas.addEventListener(
+            'click',
+            (event) => {
+                this.focused = true;
+                this.clicked(event);
+            },
+            false
+        );
 
-        this.renderCanvas.addEventListener('contextmenu', (event) => {
-            event.preventDefault();
-        }, false);
+        this.renderCanvas.addEventListener(
+            'mousemove',
+            (event) => this.mouseMove(event),
+            false
+        );
+
+        this.renderCanvas.addEventListener(
+            'mousedown',
+            (event) => this.mouseDown(event),
+            false
+        );
+
+        this.renderCanvas.addEventListener(
+            'mouseup',
+            (event) => this.mouseUp(event),
+            false
+        );
+
+        this.renderCanvas.addEventListener(
+            'contextmenu',
+            (event) => {
+                event.preventDefault();
+            },
+            false
+        );
 
         // mousewheel
-        this.renderCanvas.addEventListener('mousewheel', (event) => mouseWheel(event), false);
-        this.renderCanvas.addEventListener('DOMMouseScroll', (event) => mouseWheel(event), false);
+        this.renderCanvas.addEventListener(
+            'mousewheel',
+            (event) => this.mouseWheel(event),
+            false
+        );
+        this.renderCanvas.addEventListener(
+            'DOMMouseScroll',
+            (event) => this.mouseWheel(event),
+            false
+        );
 
         // keypress
-        document.addEventListener('keydown', (event) => {
-            if (this.focused) {
-                this.keyDown(event);
-            }
-        }, false);
-        document.addEventListener('keyup', (event) => {
-            if (this.focused) {
-                this.keyUp(event);
-            }
-        }, false);
+        document.addEventListener(
+            'keydown',
+            (event) => {
+                if (this.focused) {
+                    this.keyDown(event);
+                }
+            },
+            false
+        );
+
+        document.addEventListener(
+            'keyup',
+            (event) => {
+                if (this.focused) {
+                    this.keyUp(event);
+                }
+            },
+            false
+        );
 
         // Gamepad
-        window.addEventListener("gamepadconnected", (e) => {
-            const index = e.gamepad.index;
+        window.addEventListener('gamepadconnected', (e) => {
+            const { index } = e.gamepad;
             const gp = navigator.getGamepads()[index];
-            
+
             this.gamePads[e.gamepad.index] = new Gamepad(gp, index);
         });
-        window.addEventListener("gamepaddisconnected", (e) => {
-            const index = e.gamepad.index;
+
+        window.addEventListener('gamepaddisconnected', (e) => {
+            const { index } = e.gamepad;
             this.gamePads.splice(index, 1);
+        });
+
+        // Window resize
+        window.addEventListener('resize', () => {
+            const { innerWidth, innerHeight } = window;
+            const windowRatio = innerWidth / innerHeight;
+            let newWidth = 0;
+            let newHeight = 0;
+
+            if (windowRatio > this.aspectRatio) {
+                this.renderCanvas.style.width = `${
+                    innerHeight * this.aspectRatio
+                }px`;
+                this.renderCanvas.style.height = `${innerHeight}px`;
+                newWidth = innerHeight * this.aspectRatio;
+                newHeight = innerHeight;
+            } else {
+                this.renderCanvas.style.width = `${innerWidth}px`;
+                this.renderCanvas.style.height = `${
+                    innerWidth / this.aspectRatio
+                }px`;
+                newWidth = innerWidth;
+                newHeight = innerWidth / this.aspectRatio;
+            }
+
+            this.renderCanvas.height = newHeight;
+            this.renderCanvas.width = newWidth;
+
+            // adjust global scale
+            this.jestScale = newWidth / this.width;
+
+            // game bounds
+            this.bounds = {
+                x: 0,
+                y: 0,
+                width: newWidth,
+                height: newHeight
+            };
         });
 
         this.renderCanvas.width = this.width;
@@ -200,17 +282,17 @@ class Jest {
 
         this.addState(this.stateName);
         this.switchState({
-            'id': 0
+            id: 0
         });
 
         // setup a label to display the frameRate
         if (this.showFrameRate) {
             this.frameRateLabel = new Label({
-                'text': ' ',
+                text: ' ',
                 x: 0,
                 y: 30,
                 z: 1,
-                'font': '14pt arial bold'
+                font: '14pt arial bold'
             });
             this.addEntity(this.frameRateLabel);
         }
@@ -225,51 +307,77 @@ class Jest {
 
         this.setupGame();
     }
+
     /**
      * Jest.setupGame()
      * Setup game states render loop, made to be overriden by user
-     **/
+     * */
     setupGame() {
         this.update();
     }
+
     /**
      * Jest.getKey()
      * returns the state of a key
-     **/
+     * */
     getKey(key) {
-        //todo: add logic to return the state of the key, get the keycode based off of thekey passed
+        // todo: add logic to return the state of the key, get the keycode based off of thekey passed
         return this.keys[key];
     }
+
     /**
      * Jest.keyDown()
      * sets the state of the key pressed to true
-     **/
+     * */
     keyDown(event) {
         this.keys[event.keyCode] = true;
     }
+
     /**
      * Jest.keyUp()
      * sets the state of the key pressed to false
-     **/
+     * */
     keyUp(event) {
         this.keys[event.keyCode] = false;
     }
+
     /**
      * Jest.buttonPressed()
      * sets the state of the key pressed to false
-     **/
+     * */
     buttonPressed(gamepadIndex, button) {
-        return this.gamePads[gamepadIndex] && this.gamePads[gamepadIndex].buttonPressed(button.toLowerCase()) || 0;
+        return (
+            (this.gamePads[gamepadIndex] &&
+                this.gamePads[gamepadIndex].buttonPressed(
+                    button.toLowerCase()
+                )) ||
+            0
+        );
     }
+
     getAxis(gamepadIndex, axis) {
-        return this.gamePads[gamepadIndex] && this.gamePads[gamepadIndex].axis(axis.toLowerCase()) || {x: 0, y: 0};
+        return (
+            (this.gamePads[gamepadIndex] &&
+                this.gamePads[gamepadIndex].axis(axis.toLowerCase())) || {
+                x: 0,
+                y: 0
+            }
+        );
     }
+
+    gamePadRumble(gamepadIndex, duration) {
+        return (
+            this.gamePads[gamepadIndex] &&
+            this.gamePads[gamepadIndex].rumble(duration)
+        );
+    }
+
     /**
      * Jest.clicked()
      * object event
      * handles the click event for the canvas
      * TODO update this, I dont like how it requires origin and pos
-     **/
+     * */
     clicked(event) {
         this.cX = 0;
         this.cY = 0;
@@ -281,20 +389,31 @@ class Jest {
             this.cX = event.changedTouches[0].pageX;
             this.cY = event.changedTouches[0].pageY;
         } else {
-            this.cX = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-            this.cY = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+            this.cX =
+                event.clientX +
+                document.body.scrollLeft +
+                document.documentElement.scrollLeft;
+            this.cY =
+                event.clientY +
+                document.body.scrollTop +
+                document.documentElement.scrollTop;
         }
 
         this.cX -= this.renderCanvas.offsetLeft;
         this.cY -= this.renderCanvas.offsetTop;
 
-        var id = this.entities.length,
-            entities = this.entities;
+        let id = this.entities.length;
+        const { entities } = this;
 
         while (id--) {
-            var entity = entities[id];
+            const entity = entities[id];
             if (entity.clickable && entity.pos && entity.origin) {
-                if (this.cX > entity.pos.x - entity.origin.x && this.cX < (entity.pos.x - entity.origin.x) + entity.width && this.cY > entity.pos.y - entity.origin.y && this.cY < (entity.pos.y - entity.origin.y) + entity.height) {
+                if (
+                    this.cX > entity.pos.x - entity.origin.x &&
+                    this.cX < entity.pos.x - entity.origin.x + entity.width &&
+                    this.cY > entity.pos.y - entity.origin.y &&
+                    this.cY < entity.pos.y - entity.origin.y + entity.height
+                ) {
                     entity.clicked();
                     if (entity.noClickThrough) {
                         break;
@@ -304,24 +423,34 @@ class Jest {
         }
 
         return {
-            'clickX': this.cX,
-            'clickY': this.cY
+            clickX: this.cX,
+            clickY: this.cY
         };
     }
+
     /**
      * Jest.mouseMove()
      * object event
      * handles the mouse move event
-     **/
+     * */
     mouseMove(event) {
         if (event.pageX || event.pageY) {
             this.mouseX = event.pageX - this.renderCanvas.offsetLeft;
             this.mouseY = event.pageY - this.renderCanvas.offsetTop;
         } else {
-            this.mouseX = (event.clientX + document.body.scrollLeft - document.body.clientLeft) - this.renderCanvas.offsetLeft;
-            this.mouseY = (event.clientY + document.body.scrollTop - document.body.clientTop) - this.renderCanvas.offsetTop;
+            this.mouseX =
+                event.clientX +
+                document.body.scrollLeft -
+                document.body.clientLeft -
+                this.renderCanvas.offsetLeft;
+            this.mouseY =
+                event.clientY +
+                document.body.scrollTop -
+                document.body.clientTop -
+                this.renderCanvas.offsetTop;
         }
     }
+
     mouseDown(event) {
         this.moused = true;
         if ('which' in event) {
@@ -335,6 +464,8 @@ class Jest {
                 case 3:
                     this.rightDown = true;
                     break;
+                default:
+                    break;
             }
         }
 
@@ -345,38 +476,51 @@ class Jest {
             this.mdX = event.pageX;
             this.mdY = event.pageY;
         } else {
-            this.mdX = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-            this.mdY = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+            this.mdX =
+                event.clientX +
+                document.body.scrollLeft +
+                document.documentElement.scrollLeft;
+            this.mdY =
+                event.clientY +
+                document.body.scrollTop +
+                document.documentElement.scrollTop;
         }
 
         this.mdX -= this.renderCanvas.offsetLeft;
         this.mdY -= this.renderCanvas.offsetTop;
 
-        var id = this.entities.length,
-            entities = this.entities;
+        let id = this.entities.length;
+        const { entities } = this;
 
         while (id--) {
             const entity = entities[id];
             if (entity.clickable && entity.pos && entity.origin) {
-                if (this.mdX > entity.pos.x - entity.origin.x && this.mdX < (entity.pos.x - entity.origin.x) + entity.width && this.mdY > entity.pos.y - entity.origin.y && this.mdY < (entity.pos.y - entity.origin.y) + entity.height) {
+                if (
+                    this.mdX > entity.pos.x - entity.origin.x &&
+                    this.mdX < entity.pos.x - entity.origin.x + entity.width &&
+                    this.mdY > entity.pos.y - entity.origin.y &&
+                    this.mdY < entity.pos.y - entity.origin.y + entity.height
+                ) {
                     entity.mouseDown();
                 }
             }
         }
 
         return {
-            'mouseDownX': this.mdX,
-            'mouseDownY': this.mdY
+            mouseDownX: this.mdX,
+            mouseDownY: this.mdY
         };
     }
-    mouseUp(event) {
+
+    mouseUp() {
         this.moused = false;
         this.leftDown = false;
         this.midDown = false;
         this.rightDown = false;
     }
+
     mouseWheel(event) {
-        var dir = 0;
+        let dir = 0;
         if ('wheelDelta' in event) {
             if (Math.abs(event.wheelDelta) - event.wheelDelta === 0) {
                 dir = -1;
@@ -400,17 +544,17 @@ class Jest {
      * object entity, renderFalse bool, state object
      * renderFalse : controls if the item is added to the renderer.
      * state {name : string, OR id : number}: allows you to specify what state you want to add the entity to, if you dont specify it adds it to the current state
-     **/
+     * */
     addEntity(object, renderFalse, state) {
         // add the live prop since the renderer/update chooses to display or update based on it
-        if (!("live" in object)) {
+        if (!('live' in object)) {
             object.live = true;
         }
 
         this.renderFalse = renderFalse;
 
         if (state) {
-            var foundState = this.getState(state);
+            const foundState = this.getState(state);
 
             if (foundState) {
                 foundState.entityList.push(object);
@@ -430,23 +574,21 @@ class Jest {
      * Jest.removeEntity()
      * object entity, state Object
      * Removes an entity from the update cycle and renderer, you can also specify the state you want to remove from
-     **/
+     * */
     removeEntity(object, state) {
-        var entities = this.entities,
-            numEntities = entities.length;
+        let { entities } = this;
 
         if (state) {
-            var foundState = this.getState(state);
+            const foundState = this.getState(state);
 
             if (foundState) {
                 entities = foundState.entityList;
-                numEntities = entities.length;
             }
         }
 
-        var item = entities.indexOf(object);
+        const item = entities.indexOf(object);
 
-        if (typeof object.kill != 'undefined') {
+        if (typeof object.kill !== 'undefined') {
             object.kill();
         }
 
@@ -460,9 +602,9 @@ class Jest {
      * object options
      * {name : string}
      * Adds a state the Jest, states hold their own entity list, and render list
-     **/
-    addState(name, enterState, exitState) {
-        var stateObj = {};
+     * */
+    addState(name, enterState) {
+        const stateObj = {};
 
         if (name) {
             stateObj.name = name;
@@ -484,15 +626,15 @@ class Jest {
      * object options
      * {name : string, id : number}
      * Finds and returns the state
-     **/
+     * */
     getState(options) {
-        var foundState = false;
+        let foundState = false;
 
-        if ("id" in options) {
+        if ('id' in options) {
             foundState = this.states[options.id];
-        } else if ("name" in options) {
-            var stateName = options.name;
-            for (var i = 0, len = this.states.length; i < len; i++) {
+        } else if ('name' in options) {
+            const stateName = options.name;
+            for (let i = 0, len = this.states.length; i < len; i++) {
                 if (this.states[i].name === stateName) {
                     foundState = this.states[i];
                     break;
@@ -508,18 +650,20 @@ class Jest {
      * object options
      * {name : string, id : number}
      * Adds a state the Jest, states hold their own entity list, and render list
-     **/
+     * */
     switchState(options) {
-        var foundState = this.getState(options);
+        const foundState = this.getState(options);
 
         // throw in a debug if the state hasn't been found
         if (foundState) {
             if (options.exitTransition && !options.exitComplete) {
                 // perform exit transition if one exists
                 options.exitComplete = true;
-                Game.addEntity(new Jest.Transition(options.exitTransition, function () {
-                    Game.switchState(options);
-                }));
+                Game.addEntity(
+                    new Jest.Transition(options.exitTransition, () => {
+                        Game.switchState(options);
+                    })
+                );
             } else {
                 // switch the render list, and the entity list
                 this.currentState = foundState;
@@ -533,30 +677,51 @@ class Jest {
 
                 // Perform enter transition if one exists
                 if (options.enterTransition) {
-                    Game.addEntity(new Jest.Transition(options.enterTransition));
+                    Game.addEntity(
+                        new Jest.Transition(options.enterTransition)
+                    );
                 }
             }
         }
     }
+
     /**
      * Jest.checkHit(x,y)
      * x,y number
      * Checks all the entities to see if they were hit by the coords. Very expensive right now definitly need to clean it up
-     **/
+     * */
     checkHit(x, y) {
-        var numEntities = this.entities.length,
-            entities = this.entities;
+        const { entities } = this;
 
         this.hitEntities = [];
 
-        for (var id = 0, entLen = this.entities.length; id < entLen; id++) {
-            var object = entities[id];
+        for (let id = 0, entLen = this.entities.length; id < entLen; id++) {
+            const object = entities[id];
             if (object.live && object.clickable) {
-                if (x > object.x && x < object.x + object.width && y > object.y && y < object.y + object.height) {
+                if (
+                    x > object.x &&
+                    x < object.x + object.width &&
+                    y > object.y &&
+                    y < object.y + object.height
+                ) {
                     this.hitEntities.push(object);
                 }
             }
         }
+    }
+
+    /**
+     * Jest.checkBounds(x, y, width = 0, height = 0)
+     * x, y, width = 0, height = 0, numbers
+     * Checks if within bounds of the play area
+     * */
+    checkBounds(x, y, width = 0, height = 0) {
+        return (
+            this.bounds.x < x &&
+            this.bounds.width > x + width &&
+            this.bounds.y < y &&
+            this.bounds.height > y + height
+        );
     }
 }
 

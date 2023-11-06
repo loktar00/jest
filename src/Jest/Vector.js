@@ -1,25 +1,26 @@
-export default class Vector{
-    constructor(x, y, z){
+/* eslint-disable no-unused-vars */
+export default class Vector {
+    constructor(x, y, z) {
         this.x = x;
         this.y = y;
         this.z = z;
 
-        let copy = function(v){
+        const copy = function copy(v) {
             this.x = v.x;
             this.y = v.y;
             this.z = v.z;
-        },
-        add = function(v){
+        };
+        const add = function add(v) {
             this.x += v.x;
             this.y += v.y;
             this.z += v.z;
-        },
-        sub = function(v){
+        };
+        const sub = function sub(v) {
             this.x -= v.x;
             this.y -= v.y;
             this.z -= v.z;
-        },
-        cross = function(v){
+        };
+        const cross = function cross(v) {
             this.tx = this.x;
             this.ty = this.y;
             this.tz = this.z;
@@ -27,85 +28,104 @@ export default class Vector{
             this.x = this.ty * v.z - this.tz * v.y;
             this.y = this.tz * v.x - this.tx * v.z;
             this.z = this.tx * v.y - this.ty * v.x;
-        },
-        multiply = function(s){
+        };
+        const multiply = function multiply(s) {
             this.x *= s;
             this.y *= s;
             this.z *= s;
-        },
-        distanceTo = function(v){
+        };
+        const distanceTo = function distanceTo(v) {
             this.dx = this.x - v.x;
             this.dy = this.y - v.y;
             this.dz = this.z - v.z;
 
-            return Math.sqrt(this.dx * this.dx + this.dy * this.dy + this.dz * this.dz);
-        },
-        distanceToSquared = function(v){
+            return Math.sqrt(
+                this.dx * this.dx + this.dy * this.dy + this.dz * this.dz
+            );
+        };
+        const distanceToSquared = function distanceToSquared(v) {
             this.dx = this.x - v.x;
             this.dy = this.y - v.y;
             this.dz = this.z - v.z;
 
             return this.dx * this.dx + this.dy * this.dy + this.dz * this.dz;
-        },
-        length = function(){
-            return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-        },
-        lengthSq = function(){
+        };
+        const length = function length() {
+            return Math.sqrt(
+                this.x * this.x + this.y * this.y + this.z * this.z
+            );
+        };
+        const lengthSq = function lengthSq() {
             return this.x * this.x + this.y * this.y + this.z * this.z;
-        },
-        negate = function(){
+        };
+        const negate = function negate() {
             this.x = -this.x;
             this.y = -this.y;
             this.z = -this.z;
-        },
-        dot = function(v){
+        };
+        const dot = function dot(v) {
             return this.x * v.x + this.y * v.y + this.z * v.z;
-        },
-        clone = function(){
+        };
+        const clone = function clone() {
             return new Vector(this.x, this.y, this.z);
-        },
-        toString = function(){
-            return '(' + this.x + ', ' + this.y + ', ' + this.z + ')';
-        }
+        };
+        const toString = function toString() {
+            return `(${this.x}, ${this.y}, ${this.z})`;
+        };
     }
-    add(a, b){
-        return new Vector( a.x + b.x, a.y + b.y, a.z + b.z );
+
+    static add(a, b) {
+        return new Vector(a.x + b.x, a.y + b.y, a.z + b.z);
     }
-    sub(a, b){
-        return new Vector( a.x - b.x, a.y - b.y, a.z - b.z );
+
+    static sub(a, b) {
+        return new Vector(a.x - b.x, a.y - b.y, a.z - b.z);
     }
-    negate(){
+
+    static negate() {
         this.x = -this.x;
         this.y = -this.y;
         this.z = -this.z;
     }
-    multiply(a, s){
-        return new Vector( a.x * s, a.y * s, a.z * s );
+
+    static multiply(a, s) {
+        return new Vector(a.x * s, a.y * s, a.z * s);
     }
-    cross(a, b){
-        return new Vector( a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x );
+
+    static cross(a, b) {
+        return new Vector(
+            a.y * b.z - a.z * b.y,
+            a.z * b.x - a.x * b.z,
+            a.x * b.y - a.y * b.x
+        );
     }
-    dot(v){
+
+    dot(v) {
         return this.x * v.x + this.y * v.y + this.z * v.z;
     }
-    distance(a, b){
-        var dx = a.x - b.x,
-            dy = a.y - b.y,
-            dz = a.z - b.z;
+
+    static distance(a, b) {
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        const dz = a.z - b.z;
 
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
-    length(){
+
+    length() {
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
-    mulScale(a, b){
-        return new Vector(this.x*b,this.y*b, this.z*b);
+
+    mulScale(a, b) {
+        return new Vector(this.x * b, this.y * b, this.z * b);
     }
-    normalize(){
-        if (this.length() > 0)
+
+    normalize() {
+        if (this.length() > 0) {
             this.ool = 1.0 / this.length();
-        else
+        } else {
             this.ool = 0;
+        }
 
         this.x *= this.ool;
         this.y *= this.ool;

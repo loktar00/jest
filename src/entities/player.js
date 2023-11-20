@@ -31,8 +31,8 @@ export default class Player extends Sprite {
             targetY = Jest.getAxis(0, 'left').y * 1000;
         }
 
-        const centerX = Jest.bounds.width / 2;
-        const centerY = Jest.bounds.height / 2;
+        const centerX = Jest.width / 2;
+        const centerY = Jest.height / 2;
 
         const x = centerX - targetX;
         const y = centerY - targetY;

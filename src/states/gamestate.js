@@ -6,6 +6,8 @@ export default class GameState {
         Jest.gameState = {};
         const { gameState } = Jest;
 
+        this.startTime = Date.now();
+
         gameState.sprites = [];
 
         const player = new Player({
@@ -25,6 +27,7 @@ export default class GameState {
         });
 
         emitter.addGroup({
+            name: 'blast',
             alignToAngle: true,
             size: 0,
             endSize: 15,
@@ -48,9 +51,9 @@ export default class GameState {
                 g: 255,
                 b: 255
             },
-            duration: -1,
-            rate: 200,
-            lifeTime: 3500
+            rate: 300,
+            lifeTime: 3500,
+            oneShot: true
         });
 
         const emitter2 = new Emitter({
@@ -84,9 +87,13 @@ export default class GameState {
                 g: 255,
                 b: 255
             },
-            duration: -1,
-            rate: 200,
+            duration: Infinity,
+            rate: 500,
             lifeTime: 3500
         });
+
+        setInterval(() => {
+            emitter.startGroup('blast');
+        }, 2000);
     }
 }

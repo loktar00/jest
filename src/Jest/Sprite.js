@@ -201,6 +201,10 @@ export default class Sprite {
             const cX = (0.5 + (this.pos.x - this.origin.x)) << 0;
             const cY = (0.5 + (this.pos.y - this.origin.y)) << 0;
 
+            // Scale the image dimensions
+            const scaledWidth = this.width * Jest.jestScale;
+            const scaledHeight = this.height * Jest.jestScale;
+
             context.drawImage(
                 this.resource.source,
                 this.startX,
@@ -209,8 +213,8 @@ export default class Sprite {
                 this.height,
                 cX,
                 cY,
-                this.width,
-                this.height
+                scaledWidth, // Use the scaled width
+                scaledHeight // Use the scaled height
             );
         } else {
             const { color } = this;

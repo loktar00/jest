@@ -28,9 +28,11 @@ export default class Renderer {
             if (b.bg || a.ui) {
                 return -1;
             }
+
             if (a.pos && b.pos) {
-                return b.pos.z - a.pos.z;
+                return (b.pos?.z ?? 0) - (a.pos?.z ?? 0);
             }
+
             return 0;
         });
 

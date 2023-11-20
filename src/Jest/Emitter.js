@@ -40,6 +40,10 @@ export default class Emitter {
             group.delay = 0;
         }
 
+        if (particleGroup.oneShot) {
+            group.duration = -Infinity;
+        }
+
         this.particleGroups.push(group);
     }
 
@@ -88,7 +92,11 @@ export default class Emitter {
 
         if (selectedGroup) {
             selectedGroup.startTime = Date.now();
-            selectedGroup.lastUpdate = 0;
+            selectedGroup.lastUpdate = Date.now();
+
+            if (selectedGroup.oneShot) {
+                selectedGroup.duration = -Infinity;
+            }
         }
     }
 
@@ -96,36 +104,50 @@ export default class Emitter {
         this.particleGroups = [];
     }
 
-    update() {
-        this.lastUpdate = new Date().getTime();
+    update(deltaTime) {
+        const currentTime = new Date().getTime();
 
         const { particleGroups } = this;
         const util = Jest.utilities;
+
         let pg = particleGroups.length;
 
         while (pg--) {
             const currentGroup = particleGroups[pg];
+            let elapsedTime = (currentTime - currentGroup.lastUpdate) / 1000;
 
             if (
-                this.lastUpdate - currentGroup.lastUpdate >=
-                    1000 / currentGroup.rate &&
-                this.lastUpdate > currentGroup.startTime + currentGroup.delay &&
+                currentTime > currentGroup.startTime + currentGroup.delay &&
                 Jest.currentFrameRate > 30
             ) {
-                currentGroup.lastUpdate = this.lastUpdate;
+                let particlesToEmit = Math.floor(
+                    currentGroup.rate * elapsedTime
+                );
 
+                // For one-shot, emit all at once and then set to 0 to prevent further emission
                 if (
-                    currentGroup.lastUpdate - currentGroup.startTime <
-                        currentGroup.duration ||
-                    currentGroup.duration === -1
+                    currentGroup.oneShot &&
+                    currentGroup.duration === -Infinity
                 ) {
-                    let rate = 1;
+                    particlesToEmit = elapsedTime > 0 ? currentGroup.rate : 0;
+                    currentGroup.duration = 100;
+                }
 
-                    if (currentGroup.oneShot) {
-                        rate = currentGroup.rate;
+                // Only proceed if particles need to be emitted, and duration hasn't expired
+                if (
+                    particlesToEmit > 0 &&
+                    (currentTime - currentGroup.startTime <
+                        currentGroup.duration ||
+                        currentGroup.duration === Infinity)
+                ) {
+                    if (currentGroup.oneShot && particlesToEmit > 0) {
+                        // if it's one shot make it's duration 0 since we don't want it to emit again
+                        currentGroup.duration = -1;
                     }
 
-                    while (rate--) {
+                    currentGroup.lastUpdate = currentTime; // Update the last update time
+
+                    while (particlesToEmit--) {
                         if (currentGroup.posRangeX) {
                             const xRange = util.getRandomRange(
                                 currentGroup.posRangeX.start * Jest.jestScale, // Scaled
@@ -186,9 +208,8 @@ export default class Emitter {
                             }
                         }
 
-                        // should add a pool here and recycle particles for perf
+                        // Add or recycle particle
                         if (!this.pool.length) {
-                            currentGroup.list = this.particles;
                             const curParticle = new Particle({
                                 ...currentGroup,
                                 ...{ pool: this.pool }

@@ -102,16 +102,16 @@ export default class Particle extends Sprite {
         this.pos.x = this.originalPos.x * Jest.jestScale;
         this.pos.y = this.originalPos.y * Jest.jestScale;
 
-        if (this.pos.y < 0 || this.pos.y > Jest.bounds.y + Jest.bounds.height) {
-            this.visible = false;
-            this.emitterPool.push(this);
-            Jest.particleCount--;
-        }
-
-        if (Date.now() > this.endLife) {
-            this.visible = false;
-            this.emitterPool.push(this);
-            Jest.particleCount--;
+        if (
+            this.pos.y < 0 ||
+            this.pos.y > Jest.bounds.y + Jest.bounds.height ||
+            Date.now() > this.endLife
+        ) {
+            if (this.visible) {
+                this.visible = false;
+                this.emitterPool.push(this);
+                Jest.particleCount--;
+            }
         }
 
         // Do the changes between

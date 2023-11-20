@@ -22,7 +22,6 @@ export default class Sprite {
                 (options?.y || 0) * Jest.jestScale,
                 options.pos?.z || 0 // Assuming z-scale is not required, else apply Jest.jestScale
             );
-
         } else if (options.pos) {
             this.pos = options.pos;
         } else {
@@ -30,8 +29,8 @@ export default class Sprite {
         }
 
         // Set drawing origin
-       // Apply scale to origin
-       this.origin = new Vector(
+        // Apply scale to origin
+        this.origin = new Vector(
             (options.origin?.x || 0) * Jest.jestScale,
             (options.origin?.y || 0) * Jest.jestScale,
             options.origin?.z || 0 // Assuming z-scale is not required, else apply Jest.jestScale
@@ -214,8 +213,8 @@ export default class Sprite {
                 this.height,
                 cX,
                 cY,
-                scaledWidth,    // Use the scaled width
-                scaledHeight    // Use the scaled height
+                scaledWidth, // Use the scaled width
+                scaledHeight // Use the scaled height
             );
         } else {
             const { color } = this;

@@ -116,18 +116,30 @@ export default class Emitter {
             const currentGroup = particleGroups[pg];
             let elapsedTime = (currentTime - currentGroup.lastUpdate) / 1000;
 
-            if (currentTime > currentGroup.startTime + currentGroup.delay && Jest.currentFrameRate > 30) {
-                let particlesToEmit = Math.floor(currentGroup.rate * elapsedTime);
+            if (
+                currentTime > currentGroup.startTime + currentGroup.delay &&
+                Jest.currentFrameRate > 30
+            ) {
+                let particlesToEmit = Math.floor(
+                    currentGroup.rate * elapsedTime
+                );
 
                 // For one-shot, emit all at once and then set to 0 to prevent further emission
-                if (currentGroup.oneShot && currentGroup.duration === -Infinity) {
-                    particlesToEmit = (elapsedTime > 0) ? currentGroup.rate : 0;
+                if (
+                    currentGroup.oneShot &&
+                    currentGroup.duration === -Infinity
+                ) {
+                    particlesToEmit = elapsedTime > 0 ? currentGroup.rate : 0;
                     currentGroup.duration = 100;
                 }
 
                 // Only proceed if particles need to be emitted, and duration hasn't expired
-                if (particlesToEmit > 0 && (currentTime - currentGroup.startTime < currentGroup.duration || currentGroup.duration === Infinity)) {
-
+                if (
+                    particlesToEmit > 0 &&
+                    (currentTime - currentGroup.startTime <
+                        currentGroup.duration ||
+                        currentGroup.duration === Infinity)
+                ) {
                     if (currentGroup.oneShot && particlesToEmit > 0) {
                         // if it's one shot make it's duration 0 since we don't want it to emit again
                         currentGroup.duration = -1;
@@ -139,7 +151,8 @@ export default class Emitter {
                         if (currentGroup.posRangeX) {
                             const xRange = util.getRandomRange(
                                 currentGroup.posRangeX.start * Jest.jestScale, // Scaled
-                                (currentGroup.posRangeX.end || 0) * Jest.jestScale // Scaled
+                                (currentGroup.posRangeX.end || 0) *
+                                    Jest.jestScale // Scaled
                             );
                             currentGroup.x = this.pos.x + xRange;
                         } else {
@@ -149,7 +162,8 @@ export default class Emitter {
                         if (currentGroup.posRangeY) {
                             const yRange = util.getRandomRange(
                                 currentGroup.posRangeY.start * Jest.jestScale, // Scaled
-                                (currentGroup.posRangeY.end || 0) * Jest.jestScale // Scaled
+                                (currentGroup.posRangeY.end || 0) *
+                                    Jest.jestScale // Scaled
                             );
                             currentGroup.y = this.pos.y + yRange;
                         } else {

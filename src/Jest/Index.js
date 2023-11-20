@@ -250,15 +250,17 @@ class Jest {
             let newHeight = 0;
 
             if (windowRatio > this.aspectRatio) {
-                this.renderCanvas.style.width = `${innerHeight *
-                    this.aspectRatio}px`;
+                this.renderCanvas.style.width = `${
+                    innerHeight * this.aspectRatio
+                }px`;
                 this.renderCanvas.style.height = `${innerHeight}px`;
                 newWidth = innerHeight * this.aspectRatio;
                 newHeight = innerHeight;
-
             } else {
                 this.renderCanvas.style.width = `${innerWidth}px`;
-                this.renderCanvas.style.height = `${innerWidth / this.aspectRatio}px`;
+                this.renderCanvas.style.height = `${
+                    innerWidth / this.aspectRatio
+                }px`;
                 newWidth = innerWidth;
                 newHeight = innerWidth / this.aspectRatio;
             }
@@ -477,7 +479,8 @@ class Jest {
         this.mdX = 0;
         this.mdY = 0;
 
-        this.mdX = (event.pageX - this.renderCanvas.offsetLeft) / this.jestScale;
+        this.mdX =
+            (event.pageX - this.renderCanvas.offsetLeft) / this.jestScale;
         this.mdY = (event.pageY - this.renderCanvas.offsetTop) / this.jestScale;
 
         let id = this.entities.length;

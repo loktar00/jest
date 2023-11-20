@@ -1,9 +1,7 @@
-
-
 export default class Label {
     constructor(options = {}) {
         this.text = options.text || 'Undefined Label Text';
-        this.originalFont  = options.font || '1rem Arial';
+        this.originalFont = options.font || '1rem Arial';
         this.font = this.originalFont; // Initialize with the original font
 
         this.pos = { x: 0, y: 0 };

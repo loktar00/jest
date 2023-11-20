@@ -58,8 +58,8 @@ export default class GameState {
 
         const emitter2 = new Emitter({
             pos: {
-                x: Jest.width / 4 * 3,
-                y: Jest.height / 4 * 3
+                x: (Jest.width / 4) * 3,
+                y: (Jest.height / 4) * 3
             }
         });
 

@@ -24,6 +24,9 @@ class Jest {
         // used to show the fps
         this.frameRateLabel = {};
 
+        // used to show particle count
+        this.particleLabel = {};
+
         // init the utilities and resource manager
         this.resourceManager = new ResourceManager();
 
@@ -49,6 +52,7 @@ class Jest {
         this.aspectRatio = this.width / this.height;
         this.frameRate = options.frameRate || Math.ceil(1000 / 60);
         this.showFrameRate = options.showFrameRate || false;
+        this.showParticleCount = options.showParticleCount || false;
         this.stateName = options.stateName || '0';
 
         // game bounds
@@ -124,6 +128,7 @@ class Jest {
 
         this.renderer.redraw();
         this.frameRateLabel.text = `${Math.round(1000 / this.deltaTime)} fps`;
+        this.particleLabel.text = `${this.particleCount} particles`;
         this.currentFrameRate = Math.round(1000 / this.deltaTime);
 
         requestAnimationFrame(() => {
@@ -245,17 +250,15 @@ class Jest {
             let newHeight = 0;
 
             if (windowRatio > this.aspectRatio) {
-                this.renderCanvas.style.width = `${
-                    innerHeight * this.aspectRatio
-                }px`;
+                this.renderCanvas.style.width = `${innerHeight *
+                    this.aspectRatio}px`;
                 this.renderCanvas.style.height = `${innerHeight}px`;
                 newWidth = innerHeight * this.aspectRatio;
                 newHeight = innerHeight;
+
             } else {
                 this.renderCanvas.style.width = `${innerWidth}px`;
-                this.renderCanvas.style.height = `${
-                    innerWidth / this.aspectRatio
-                }px`;
+                this.renderCanvas.style.height = `${innerWidth / this.aspectRatio}px`;
                 newWidth = innerWidth;
                 newHeight = innerWidth / this.aspectRatio;
             }
@@ -295,6 +298,18 @@ class Jest {
                 font: '14pt arial bold'
             });
             this.addEntity(this.frameRateLabel);
+        }
+
+        // setup a label to display the frameRate
+        if (this.showParticleCount) {
+            this.particleLabel = new Label({
+                text: ' ',
+                x: 0,
+                y: 80,
+                z: 1,
+                font: '14pt arial bold'
+            });
+            this.addEntity(this.particleLabel);
         }
 
         this.mouseX = 0;
@@ -434,21 +449,11 @@ class Jest {
      * handles the mouse move event
      * */
     mouseMove(event) {
-        if (event.pageX || event.pageY) {
-            this.mouseX = event.pageX - this.renderCanvas.offsetLeft;
-            this.mouseY = event.pageY - this.renderCanvas.offsetTop;
-        } else {
-            this.mouseX =
-                event.clientX +
-                document.body.scrollLeft -
-                document.body.clientLeft -
-                this.renderCanvas.offsetLeft;
-            this.mouseY =
-                event.clientY +
-                document.body.scrollTop -
-                document.body.clientTop -
-                this.renderCanvas.offsetTop;
-        }
+        const x = event.pageX - this.renderCanvas.offsetLeft;
+        const y = event.pageY - this.renderCanvas.offsetTop;
+
+        this.mouseX = x / this.jestScale;
+        this.mouseY = y / this.jestScale;
     }
 
     mouseDown(event) {
@@ -472,22 +477,8 @@ class Jest {
         this.mdX = 0;
         this.mdY = 0;
 
-        if (event.pageX || event.pageY) {
-            this.mdX = event.pageX;
-            this.mdY = event.pageY;
-        } else {
-            this.mdX =
-                event.clientX +
-                document.body.scrollLeft +
-                document.documentElement.scrollLeft;
-            this.mdY =
-                event.clientY +
-                document.body.scrollTop +
-                document.documentElement.scrollTop;
-        }
-
-        this.mdX -= this.renderCanvas.offsetLeft;
-        this.mdY -= this.renderCanvas.offsetTop;
+        this.mdX = (event.pageX - this.renderCanvas.offsetLeft) / this.jestScale;
+        this.mdY = (event.pageY - this.renderCanvas.offsetTop) / this.jestScale;
 
         let id = this.entities.length;
         const { entities } = this;

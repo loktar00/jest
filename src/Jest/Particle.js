@@ -15,8 +15,7 @@ export default class Particle extends Sprite {
         this.startLife = Date.now();
         this.curStep = 0;
 
-        this.lifeTime =
-            options.lifeTime !== undefined ? options.lifeTime : 1000;
+        this.lifeTime = options.lifeTime !== undefined ? options.lifeTime : 1000;
         this.delay = options.delay || 0;
 
         this.size = options.size || options.startSize || 1;
@@ -30,8 +29,7 @@ export default class Particle extends Sprite {
         this.width = this.size;
         this.height = this.size;
         this.startSize = options.startSize || this.size;
-        this.endSize =
-            options.endSize !== undefined ? options.endSize : this.size;
+        this.endSize = options.endSize !== undefined ? options.endSize : this.size;
         this.thrust = options.thrust || 0;
         this.gravity = options.gravity || 0;
 
@@ -44,8 +42,7 @@ export default class Particle extends Sprite {
         this.startColor = options.startColor || this.color;
         this.endColor = options.endColor || this.color;
 
-        this.startAlpha =
-            options.startAlpha !== undefined ? options.startAlpha : 1;
+        this.startAlpha = options.startAlpha !== undefined ? options.startAlpha : 1;
         this.endAlpha = options.endAlpha !== undefined ? options.endAlpha : 1;
         this.alpha = this.startAlpha;
 
@@ -87,12 +84,10 @@ export default class Particle extends Sprite {
     update(deltaTime) {
         this.curStep = this.endLife - Date.now();
 
-        this.vel.x =
-            Math.cos((this.angle * Math.PI) / 180) * this.thrust * deltaTime;
-        this.vel.y =
-            (Math.sin((this.angle * Math.PI) / 180) * this.thrust +
-                this.gravity * (this.lifeTime - this.curStep) * deltaTime) *
-            deltaTime;
+        this.vel.x = Math.cos((this.angle * Math.PI) / 180) * this.thrust * deltaTime;
+        this.vel.y = (Math.sin((this.angle * Math.PI) / 180) * this.thrust +
+                        this.gravity * (this.lifeTime - this.curStep) * deltaTime) *
+                        deltaTime;
 
         // Apply the velocity to the original position
         this.originalPos.x += this.vel.x;
@@ -102,16 +97,12 @@ export default class Particle extends Sprite {
         this.pos.x = this.originalPos.x * Jest.jestScale;
         this.pos.y = this.originalPos.y * Jest.jestScale;
 
-        if (this.pos.y < 0 || this.pos.y > Jest.bounds.y + Jest.bounds.height) {
-            this.visible = false;
-            this.emitterPool.push(this);
-            Jest.particleCount--;
-        }
-
-        if (Date.now() > this.endLife) {
-            this.visible = false;
-            this.emitterPool.push(this);
-            Jest.particleCount--;
+        if ((this.pos.y < 0 || this.pos.y > Jest.bounds.y + Jest.bounds.height) || Date.now() > this.endLife) {
+            if (this.visible) {
+                this.visible = false;
+                this.emitterPool.push(this);
+                Jest.particleCount--;
+            }
         }
 
         // Do the changes between
@@ -142,18 +133,9 @@ export default class Particle extends Sprite {
             let scale = 0;
 
             if (this.endSize < this.startSize) {
-                scale = Math.max(
-                    ((this.startSize - this.endSize) / this.lifeTime) *
-                        this.curStep,
-                    this.endSize
-                );
+                scale = Math.max(((this.startSize - this.endSize) / this.lifeTime) * this.curStep, this.endSize);
             } else {
-                scale = Math.min(
-                    this.endSize +
-                        ((this.startSize - this.endSize) / this.lifeTime) *
-                            this.curStep,
-                    this.endSize
-                );
+                scale = Math.min(this.endSize + ((this.startSize - this.endSize) / this.lifeTime) * this.curStep, this.endSize);
             }
 
             this.scale = {
@@ -201,8 +183,8 @@ export default class Particle extends Sprite {
                 context.rotate(rotAngle);
                 context.drawImage(
                     this.resource.source,
-                    this.startX * Jest.jestScale, // If you want to scale the source clipping
-                    this.startY * Jest.jestScale, // If you want to scale the source clipping
+                    this.startX * Jest.jestScale,  // If you want to scale the source clipping
+                    this.startY * Jest.jestScale,  // If you want to scale the source clipping
                     width * Jest.jestScale,
                     height * Jest.jestScale,
                     -oX,
@@ -215,12 +197,12 @@ export default class Particle extends Sprite {
                     this.resource.source,
                     this.startX,
                     this.startY,
-                    width * Jest.jestScale, // Scale the width
+                    width * Jest.jestScale,  // Scale the width
                     height * Jest.jestScale, // Scale the height
                     (x - oX) * Jest.jestScale, // Scale the x position
                     (y - oY) * Jest.jestScale, // Scale the y position
-                    (width - scale.x) * Jest.jestScale, // Scale the width offset
-                    (height - scale.y) * Jest.jestScale // Scale the height offset
+                    (width - scale.x) * Jest.jestScale,  // Scale the width offset
+                    (height - scale.y) * Jest.jestScale  // Scale the height offset
                 );
             }
         } else {
@@ -245,8 +227,8 @@ export default class Particle extends Sprite {
                 context.fillRect(
                     (x - oX) * Jest.jestScale, // Scale the x position
                     (y - oY) * Jest.jestScale, // Scale the y position
-                    (width - scale.x) * Jest.jestScale, // Scale the width
-                    (height - scale.y) * Jest.jestScale // Scale the height
+                    (width - scale.x) * Jest.jestScale,  // Scale the width
+                    (height - scale.y) * Jest.jestScale  // Scale the height
                 );
             }
         }

@@ -6,35 +6,37 @@ export default class Renderer {
         this.context.imageSmoothingEnabled = false;
         this.width = this.canvas.width;
         this.height = this.canvas.height;
+        this.sortDirty = true;
     }
 
-    // Todo: I dont like this. fix the sorting, right now sorts on y, but could potentially sort based on z
     redraw() {
         this.width = this.canvas.width;
         this.height = this.canvas.height;
         this.context.clearRect(0, 0, this.width, this.height);
-        // this.renderList.sort(function(a,b){return b.y-a.y});
 
-        this.renderList.sort((a, b) => {
-            if (a.bg && b.bg) {
-                return b.bgIndex - a.bgIndex;
-            }
-            if (a.ui && b.ui) {
-                return b.uiIndex - a.uiIndex;
-            }
-            if (a.bg || b.ui) {
-                return 1;
-            }
-            if (b.bg || a.ui) {
-                return -1;
-            }
+        if (this.sortDirty) {
+            this.renderList.sort((a, b) => {
+                if (a.bg && b.bg) {
+                    return b.bgIndex - a.bgIndex;
+                }
+                if (a.ui && b.ui) {
+                    return b.uiIndex - a.uiIndex;
+                }
+                if (a.bg || b.ui) {
+                    return 1;
+                }
+                if (b.bg || a.ui) {
+                    return -1;
+                }
 
-            if (a.pos && b.pos) {
-                return (b.pos?.z ?? 0) - (a.pos?.z ?? 0);
-            }
+                if (a.pos && b.pos) {
+                    return (b.pos?.z ?? 0) - (a.pos?.z ?? 0);
+                }
 
-            return 0;
-        });
+                return 0;
+            });
+            this.sortDirty = false;
+        }
 
         let id = this.renderList.length;
 
@@ -53,6 +55,7 @@ export default class Renderer {
      * */
     addToRenderer(object) {
         this.renderList.push(object);
+        this.sortDirty = true;
     }
 
     /**
@@ -65,7 +68,17 @@ export default class Renderer {
         const objIndex = list.indexOf(object);
 
         if (objIndex !== -1) {
-            list.splice(list.indexOf(object), 1);
+            list.splice(objIndex, 1);
+            this.sortDirty = true;
         }
+    }
+
+    /**
+     * Renderer.markDirty()
+     *
+     * Mark the render list as needing re-sort
+     * */
+    markDirty() {
+        this.sortDirty = true;
     }
 }

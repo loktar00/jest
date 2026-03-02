@@ -104,7 +104,7 @@ export default class Emitter {
         this.particleGroups = [];
     }
 
-    update(deltaTime) {
+    update() {
         const currentTime = new Date().getTime();
 
         const { particleGroups } = this;
@@ -114,7 +114,7 @@ export default class Emitter {
 
         while (pg--) {
             const currentGroup = particleGroups[pg];
-            let elapsedTime = (currentTime - currentGroup.lastUpdate) / 1000;
+            const elapsedTime = (currentTime - currentGroup.lastUpdate) / 1000;
 
             if (
                 currentTime > currentGroup.startTime + currentGroup.delay &&

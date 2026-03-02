@@ -69,25 +69,9 @@ class Jest {
      *
      * prepares the canvas for rendering, and starts the update process
      * */
-    load() {
-        this.loaded();
-    }
-
-    /**
-     * Jest.loaded()
-     * object event
-     * makes sure everything is loaded until continuing
-     * */
-    loaded() {
-        if (this.resourceManager.loadingComplete) {
-            this.init();
-            return true;
-        }
-
-        setTimeout(() => {
-            this.loaded();
-        }, 100);
-        return false;
+    async load() {
+        await this.resourceManager.loadAll();
+        this.init();
     }
 
     /**
@@ -653,9 +637,9 @@ class Jest {
             if (options.exitTransition && !options.exitComplete) {
                 // perform exit transition if one exists
                 options.exitComplete = true;
-                Game.addEntity(
+                this.addEntity(
                     new Jest.Transition(options.exitTransition, () => {
-                        Game.switchState(options);
+                        this.switchState(options);
                     })
                 );
             } else {
@@ -671,7 +655,7 @@ class Jest {
 
                 // Perform enter transition if one exists
                 if (options.enterTransition) {
-                    Game.addEntity(
+                    this.addEntity(
                         new Jest.Transition(options.enterTransition)
                     );
                 }

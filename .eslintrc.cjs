@@ -1,7 +1,12 @@
 module.exports = {
     root: true,
     env: { browser: true, es2020: true },
+    globals: {
+        Jest: 'readonly'
+    },
     parserOptions: {
+        ecmaVersion: 2021,
+        sourceType: 'module',
         ecmaFeatures: {
             modules: true
         }
@@ -44,9 +49,15 @@ module.exports = {
             }
         ]
     },
+    settings: {
+        react: {
+            version: '18'
+        }
+    },
     ignorePatterns: [
         'dist',
         '.eslintrc.cjs',
-        'package.json'
+        'package.json',
+        'vite.config.js'
     ],
 };

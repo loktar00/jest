@@ -9,11 +9,8 @@ Jest.setup({
     showFrameRate: true
 });
 
-Jest.load = function load() {
-    this.loaded();
-};
-
 Jest.setupGame = function setupGame() {
+    // eslint-disable-next-line no-new
     new GameState(Jest);
     this.update();
 };

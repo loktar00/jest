@@ -1,9 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
+        <meta charset="UTF-8" />
         <title>Entity Lifecycle Test</title>
         <style>
-            * { margin: 0; padding: 0; }
+            * {
+                margin: 0;
+                padding: 0;
+            }
             body {
                 font-family: monospace;
                 background: #1a1a2e;
@@ -12,7 +16,11 @@
                 flex-direction: column;
                 height: 100vh;
             }
-            h1 { color: #0ff; padding: 10px 20px; font-size: 16px; }
+            h1 {
+                color: #0ff;
+                padding: 10px 20px;
+                font-size: 16px;
+            }
             canvas {
                 display: block;
                 background: #000;
@@ -32,7 +40,9 @@
                 font-family: monospace;
                 font-size: 12px;
             }
-            button:hover { background: #555; }
+            button:hover {
+                background: #555;
+            }
             #stats {
                 padding: 5px 20px;
                 font-size: 12px;
@@ -71,14 +81,19 @@
             let killCount = 0;
 
             // Listen for entity events
-            Jest.eventBus.on('entityAdded', () => { addedCount++; });
-            Jest.eventBus.on('entityRemoved', () => { removedCount++; });
+            Jest.eventBus.on('entityAdded', () => {
+                addedCount++;
+            });
+            Jest.eventBus.on('entityRemoved', () => {
+                removedCount++;
+            });
 
             function makeBox(options = {}) {
                 const x = options.x || Math.random() * 1800 + 60;
                 const y = options.y || Math.random() * 900 + 60;
                 const entity = new Sprite({
-                    x, y,
+                    x,
+                    y,
                     width: options.size || 30 + Math.random() * 40,
                     height: options.size || 30 + Math.random() * 40,
                     color: {
@@ -95,8 +110,10 @@
                 const origUpdate = entity.update.bind(entity);
                 entity.update = function update(dt) {
                     origUpdate(dt);
-                    this.pos.x += Math.cos(this.dir) * this.speed * dt * Jest.jestScale;
-                    this.pos.y += Math.sin(this.dir) * this.speed * dt * Jest.jestScale;
+                    this.pos.x +=
+                        Math.cos(this.dir) * this.speed * dt * Jest.jestScale;
+                    this.pos.y +=
+                        Math.sin(this.dir) * this.speed * dt * Jest.jestScale;
 
                     // Bounce off bounds
                     if (this.pos.x < 0 || this.pos.x > Jest.bounds.width) {
@@ -128,44 +145,48 @@
                 }
             });
 
-            document.getElementById('addMortal').addEventListener('click', () => {
-                const box = makeBox({ size: 50 });
-                box.color = { r: 255, g: 50, b: 50 };
-                box.mortalTime = 2000;
-                box.birthTime = Date.now();
+            document
+                .getElementById('addMortal')
+                .addEventListener('click', () => {
+                    const box = makeBox({ size: 50 });
+                    box.color = { r: 255, g: 50, b: 50 };
+                    box.mortalTime = 2000;
+                    box.birthTime = Date.now();
 
-                const origUpdate2 = box.update.bind(box);
-                box.update = function update(dt) {
-                    origUpdate2(dt);
-                    const age = Date.now() - this.birthTime;
-                    this.alpha = Math.max(0, 1 - age / this.mortalTime);
-                    if (age > this.mortalTime) {
-                        this.live = false;
-                    }
-                };
+                    const origUpdate2 = box.update.bind(box);
+                    box.update = function update(dt) {
+                        origUpdate2(dt);
+                        const age = Date.now() - this.birthTime;
+                        this.alpha = Math.max(0, 1 - age / this.mortalTime);
+                        if (age > this.mortalTime) {
+                            this.live = false;
+                        }
+                    };
 
-                box.kill = function kill() {
-                    killCount++;
-                    const idx = customEntities.indexOf(this);
-                    if (idx !== -1) customEntities.splice(idx, 1);
-                };
+                    box.kill = function kill() {
+                        killCount++;
+                        const idx = customEntities.indexOf(this);
+                        if (idx !== -1) customEntities.splice(idx, 1);
+                    };
 
-                Jest.addEntity(box);
-            });
+                    Jest.addEntity(box);
+                });
 
             document.getElementById('killAll').addEventListener('click', () => {
                 const toKill = [...customEntities];
-                toKill.forEach(e => {
+                toKill.forEach((e) => {
                     e.live = false;
                 });
                 customEntities.length = 0;
             });
 
-            document.getElementById('addClickable').addEventListener('click', () => {
-                const box = makeBox({ clickable: true, size: 60 });
-                box.color = { r: 50, g: 200, b: 255 };
-                Jest.addEntity(box);
-            });
+            document
+                .getElementById('addClickable')
+                .addEventListener('click', () => {
+                    const box = makeBox({ clickable: true, size: 60 });
+                    box.color = { r: 50, g: 200, b: 255 };
+                    Jest.addEntity(box);
+                });
 
             Jest.setupGame = function setupGame() {
                 const infoLabel = new Label({

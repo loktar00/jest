@@ -1,9 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
+        <meta charset="UTF-8" />
         <title>Scaling / Resize Test</title>
         <style>
-            * { margin: 0; padding: 0; }
+            * {
+                margin: 0;
+                padding: 0;
+            }
             body {
                 font-family: monospace;
                 background: #1a1a2e;
@@ -12,7 +16,11 @@
                 flex-direction: column;
                 height: 100vh;
             }
-            h1 { color: #0ff; padding: 10px 20px; font-size: 16px; }
+            h1 {
+                color: #0ff;
+                padding: 10px 20px;
+                font-size: 16px;
+            }
             canvas {
                 display: block;
                 background: #000;
@@ -25,12 +33,18 @@
                 background: #111;
                 white-space: pre;
             }
-            .label { color: #888; }
-            .value { color: #0f0; }
+            .label {
+                color: #888;
+            }
+            .value {
+                color: #0f0;
+            }
         </style>
     </head>
     <body>
-        <h1>Scaling / Resize Test — resize the browser window to test jestScale</h1>
+        <h1>
+            Scaling / Resize Test — resize the browser window to test jestScale
+        </h1>
         <div id="info"></div>
         <canvas id="jestCanvas"></canvas>
         <script type="module">
@@ -62,7 +76,7 @@
                     { x: 1920 - cornerSize, y: 1080 - cornerSize, label: 'BR' }
                 ];
 
-                corners.forEach(c => {
+                corners.forEach((c) => {
                     const marker = new Sprite({
                         x: c.x,
                         y: c.y,
@@ -116,7 +130,7 @@
                         ctx.strokeStyle = 'rgba(100,100,100,0.3)';
                         ctx.lineWidth = 1;
                         // Vertical lines at 25%, 50%, 75%
-                        [0.25, 0.5, 0.75].forEach(pct => {
+                        [0.25, 0.5, 0.75].forEach((pct) => {
                             const x = 1920 * pct * s;
                             ctx.beginPath();
                             ctx.moveTo(x, 0);
@@ -124,7 +138,7 @@
                             ctx.stroke();
                         });
                         // Horizontal lines at 25%, 50%, 75%
-                        [0.25, 0.5, 0.75].forEach(pct => {
+                        [0.25, 0.5, 0.75].forEach((pct) => {
                             const y = 1080 * pct * s;
                             ctx.beginPath();
                             ctx.moveTo(0, y);
@@ -134,9 +148,17 @@
                         // Grid labels
                         ctx.fillStyle = '#555';
                         ctx.font = `${10 * s}px monospace`;
-                        [0, 0.25, 0.5, 0.75, 1].forEach(pct => {
-                            ctx.fillText(`${Math.round(1920 * pct)}`, 1920 * pct * s + 2, 12 * s);
-                            ctx.fillText(`${Math.round(1080 * pct)}`, 2, 1080 * pct * s + 12 * s);
+                        [0, 0.25, 0.5, 0.75, 1].forEach((pct) => {
+                            ctx.fillText(
+                                `${Math.round(1920 * pct)}`,
+                                1920 * pct * s + 2,
+                                12 * s
+                            );
+                            ctx.fillText(
+                                `${Math.round(1080 * pct)}`,
+                                2,
+                                1080 * pct * s + 12 * s
+                            );
                         });
                     }
                 };
@@ -161,8 +183,10 @@
                     origUpdate(dt);
                     this.angle += dt * 0.001;
                     const s = Jest.jestScale;
-                    this.pos.x = (this.centerX + Math.cos(this.angle) * this.radius) * s;
-                    this.pos.y = (this.centerY + Math.sin(this.angle) * this.radius) * s;
+                    this.pos.x =
+                        (this.centerX + Math.cos(this.angle) * this.radius) * s;
+                    this.pos.y =
+                        (this.centerY + Math.sin(this.angle) * this.radius) * s;
                 };
                 Jest.addEntity(mover);
 

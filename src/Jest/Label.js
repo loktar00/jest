@@ -25,8 +25,7 @@ export default class Label {
 
     // Helper function to scale the font size
     scaleFont(font, scale) {
-        const fontSizeRegex =
-            /(\d+(\.\d+)?)(px|pt|em|%|rem|vh|vw|vmin|vmax)/i;
+        const fontSizeRegex = /(\d+(\.\d+)?)(px|pt|em|%|rem|vh|vw|vmin|vmax)/i;
         const match = font.match(fontSizeRegex);
 
         if (match) {

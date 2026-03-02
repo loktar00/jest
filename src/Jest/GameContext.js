@@ -1,4 +1,4 @@
-import Renderer from './Renderer.js';
+import createRenderer from './renderers/createRenderer.js';
 import ResourceManager from './ResourceManager.js';
 import EventBus from './EventBus.js';
 import InputManager from './InputManager.js';
@@ -42,6 +42,7 @@ export default class GameContext {
         this.frameRate = options.frameRate || Math.ceil(1000 / 60);
         this.showFrameRate = options.showFrameRate || false;
         this.showParticleCount = options.showParticleCount || false;
+        this.forceCanvas2D = options.forceCanvas2D || false;
         this.stateName = options.stateName || '0';
 
         this.bounds = {
@@ -69,20 +70,17 @@ export default class GameContext {
         this.renderCanvas.height = this.height;
 
         // Create subsystems
-        this.renderer = new Renderer(this.renderCanvas);
-        this.entityManager = new EntityManager(
-            this.renderer,
-            this.eventBus
-        );
+        this.renderer = createRenderer(this.renderCanvas, {
+            forceCanvas2D: this.forceCanvas2D,
+            scale: this.jestScale
+        });
+        this.entityManager = new EntityManager(this.renderer, this.eventBus);
         this.sceneManager = new SceneManager(
             this.renderer,
             this.entityManager,
             this.eventBus
         );
-        this.inputManager = new InputManager(
-            this.renderCanvas,
-            this.eventBus
-        );
+        this.inputManager = new InputManager(this.renderCanvas, this.eventBus);
 
         // Wire resize and trigger initial sizing
         window.addEventListener('resize', () => this.handleResize());
@@ -145,6 +143,10 @@ export default class GameContext {
         this.renderCanvas.width = newWidth;
 
         this.jestScale = newWidth / this.width;
+
+        if (this.renderer) {
+            this.renderer.resize(newWidth, newHeight);
+        }
 
         this.bounds = {
             x: 0,
@@ -215,13 +217,7 @@ export default class GameContext {
     }
 
     checkBounds(x, y, width = 0, height = 0) {
-        return this.entityManager.checkBounds(
-            x,
-            y,
-            this.bounds,
-            width,
-            height
-        );
+        return this.entityManager.checkBounds(x, y, this.bounds, width, height);
     }
 
     // Input delegates

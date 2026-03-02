@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
+        <meta charset="UTF-8" />
         <title>Jest Engine - Test Index</title>
         <style>
             body {
@@ -37,29 +38,58 @@
     </head>
     <body>
         <h1>Jest Engine Test Pages</h1>
-        <p>Each page tests a specific engine feature. Open browser console (F12) for debug output.</p>
+        <p>
+            Each page tests a specific engine feature. Open browser console
+            (F12) for debug output.
+        </p>
 
         <h2>Core Engine</h2>
         <a href="eventbus.html">EventBus Test</a>
-        <div class="desc">pub/sub: on, off, emit, once — results shown in console + on page</div>
+        <div class="desc">
+            pub/sub: on, off, emit, once — results shown in console + on page
+        </div>
 
         <a href="input.html">Input Test</a>
-        <div class="desc">Keyboard, mouse, focus tracking — real-time display of all input state</div>
+        <div class="desc">
+            Keyboard, mouse, focus tracking — real-time display of all input
+            state
+        </div>
 
         <a href="entities.html">Entity Lifecycle Test</a>
-        <div class="desc">Add/remove entities, live=false removal, kill() callbacks, entity count</div>
+        <div class="desc">
+            Add/remove entities, live=false removal, kill() callbacks, entity
+            count
+        </div>
 
         <a href="scenes.html">Scene/State Test</a>
-        <div class="desc">Multiple states, switching, enterState callbacks, per-state entity lists</div>
+        <div class="desc">
+            Multiple states, switching, enterState callbacks, per-state entity
+            lists
+        </div>
 
         <a href="particles.html">Particle System Test</a>
-        <div class="desc">Emitters, one-shot/continuous, color transitions, pooling, particle count</div>
+        <div class="desc">
+            Emitters, one-shot/continuous, color transitions, pooling, particle
+            count
+        </div>
 
         <a href="rendering.html">Renderer Test</a>
-        <div class="desc">Z-order sorting, bg/ui layers, sortDirty optimization, visibility toggle</div>
+        <div class="desc">
+            Z-order sorting, bg/ui layers, sortDirty optimization, visibility
+            toggle
+        </div>
 
         <a href="scaling.html">Scaling / Resize Test</a>
-        <div class="desc">jestScale, window resize, coordinate transforms, aspect ratio lock</div>
+        <div class="desc">
+            jestScale, window resize, coordinate transforms, aspect ratio lock
+        </div>
+
+        <h2>WebGL Renderer</h2>
+        <a href="webgl.html">WebGL Renderer Test</a>
+        <div class="desc">
+            WebGL/Canvas2D toggle, shapes, textures, particles, labels,
+            blending, stress test
+        </div>
 
         <h2>Full Integration</h2>
         <a href="../test-game/">Test Game</a>

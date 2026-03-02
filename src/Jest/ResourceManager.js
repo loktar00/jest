@@ -50,9 +50,7 @@ export default class ResourceManager {
                 };
 
                 resource.source.onerror = () => {
-                    reject(
-                        new Error(`Failed to load image: ${resource.path}`)
-                    );
+                    reject(new Error(`Failed to load image: ${resource.path}`));
                 };
 
                 if (_resource.nodeType === 1) {
@@ -88,9 +86,7 @@ export default class ResourceManager {
                     'error',
                     () => {
                         reject(
-                            new Error(
-                                `Failed to load audio: ${resource.path}`
-                            )
+                            new Error(`Failed to load audio: ${resource.path}`)
                         );
                     },
                     { once: true }

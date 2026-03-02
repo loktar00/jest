@@ -20,8 +20,7 @@ export default class BouncingBox {
 
     update(deltaTime) {
         this.time += deltaTime;
-        this.pos.y =
-            this.baseY + Math.sin(this.time * 2) * 30 * Jest.jestScale;
+        this.pos.y = this.baseY + Math.sin(this.time * 2) * 30 * Jest.jestScale;
 
         // State switching via keyboard
         if (Jest.keys[49]) {
@@ -38,12 +37,7 @@ export default class BouncingBox {
     render(context) {
         const { color } = this;
         context.fillStyle = `rgba(${color.r},${color.g},${color.b},${this.alpha})`;
-        context.fillRect(
-            this.pos.x,
-            this.pos.y,
-            this.width,
-            this.height
-        );
+        context.fillRect(this.pos.x, this.pos.y, this.width, this.height);
     }
 
     clicked() {

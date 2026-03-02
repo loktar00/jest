@@ -145,7 +145,9 @@ export default class Particle extends Sprite {
         if (this.endColor !== this.startColor) {
             this.color =
                 this.colors[
-                    Math.ceil((this.lifeTime - this.curStep) / this.ctx.frameRate)
+                    Math.ceil(
+                        (this.lifeTime - this.curStep) / this.ctx.frameRate
+                    )
                 ];
         }
 
@@ -212,8 +214,8 @@ export default class Particle extends Sprite {
                 context.rotate(rotAngle);
                 context.drawImage(
                     this.resource.source,
-                    this.startX * this.ctx.jestScale, // If you want to scale the source clipping
-                    this.startY * this.ctx.jestScale, // If you want to scale the source clipping
+                    this.startX * this.ctx.jestScale,
+                    this.startY * this.ctx.jestScale,
                     width * this.ctx.jestScale,
                     height * this.ctx.jestScale,
                     -oX,
@@ -226,12 +228,12 @@ export default class Particle extends Sprite {
                     this.resource.source,
                     this.startX,
                     this.startY,
-                    width * this.ctx.jestScale, // Scale the width
-                    height * this.ctx.jestScale, // Scale the height
-                    (x - oX) * this.ctx.jestScale, // Scale the x position
-                    (y - oY) * this.ctx.jestScale, // Scale the y position
-                    (width - scale.x) * this.ctx.jestScale, // Scale the width offset
-                    (height - scale.y) * this.ctx.jestScale // Scale the height offset
+                    width * this.ctx.jestScale,
+                    height * this.ctx.jestScale,
+                    (x - oX) * this.ctx.jestScale,
+                    (y - oY) * this.ctx.jestScale,
+                    (width - scale.x) * this.ctx.jestScale,
+                    (height - scale.y) * this.ctx.jestScale
                 );
             }
         } else {

@@ -13,10 +13,8 @@ export default class Emitter {
         const scale = this.ctx.jestScale;
 
         // Apply scale to emitter size
-        this.width =
-            (options.width || this.ctx.bounds.width) * scale;
-        this.height =
-            (options.height || this.ctx.bounds.height) * scale;
+        this.width = (options.width || this.ctx.bounds.width) * scale;
+        this.height = (options.height || this.ctx.bounds.height) * scale;
 
         // Apply scale to initial position
         this.pos = {
@@ -36,7 +34,13 @@ export default class Emitter {
     }
 
     addGroup(particleGroup) {
-        const group = structuredClone(particleGroup);
+        // structuredClone can't handle DOM elements like HTMLImageElement,
+        // so pull out resource before cloning and re-attach after.
+        const { resource, ...cloneable } = particleGroup;
+        const group = structuredClone(cloneable);
+        if (resource) {
+            group.resource = resource;
+        }
         group.startTime = Date.now();
         group.lastUpdate = Date.now();
 
@@ -119,12 +123,10 @@ export default class Emitter {
 
         while (pg--) {
             const currentGroup = particleGroups[pg];
-            const elapsedTime =
-                (currentTime - currentGroup.lastUpdate) / 1000;
+            const elapsedTime = (currentTime - currentGroup.lastUpdate) / 1000;
 
             if (
-                currentTime >
-                    currentGroup.startTime + currentGroup.delay &&
+                currentTime > currentGroup.startTime + currentGroup.delay &&
                 this.ctx.currentFrameRate > 30
             ) {
                 let particlesToEmit = Math.floor(
@@ -136,8 +138,7 @@ export default class Emitter {
                     currentGroup.oneShot &&
                     currentGroup.duration === -Infinity
                 ) {
-                    particlesToEmit =
-                        elapsedTime > 0 ? currentGroup.rate : 0;
+                    particlesToEmit = elapsedTime > 0 ? currentGroup.rate : 0;
                     currentGroup.duration = 100;
                 }
 
@@ -188,9 +189,7 @@ export default class Emitter {
                                     thrustRange.min,
                                     thrustRange.max
                                 );
-                            } else if (
-                                typeof thrustRange.max !== 'undefined'
-                            ) {
+                            } else if (typeof thrustRange.max !== 'undefined') {
                                 currentGroup.thrust = util.getRandomRange(
                                     0,
                                     thrustRange.max
@@ -203,19 +202,15 @@ export default class Emitter {
                                 typeof angleRange.max !== 'undefined' &&
                                 typeof angleRange.min !== 'undefined'
                             ) {
-                                currentGroup.angle =
-                                    util.fGetRandomRange(
-                                        angleRange.min,
-                                        angleRange.max
-                                    );
-                            } else if (
-                                typeof angleRange.max !== 'undefined'
-                            ) {
-                                currentGroup.angle =
-                                    util.fGetRandomRange(
-                                        0,
-                                        angleRange.max
-                                    );
+                                currentGroup.angle = util.fGetRandomRange(
+                                    angleRange.min,
+                                    angleRange.max
+                                );
+                            } else if (typeof angleRange.max !== 'undefined') {
+                                currentGroup.angle = util.fGetRandomRange(
+                                    0,
+                                    angleRange.max
+                                );
                             }
                         }
 

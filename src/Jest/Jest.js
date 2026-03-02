@@ -9,6 +9,12 @@ import GameContext from './GameContext.js';
 import InputManager from './InputManager.js';
 import EntityManager from './EntityManager.js';
 import SceneManager from './SceneManager.js';
+import RendererBase from './renderers/RendererBase.js';
+import Canvas2DRenderer from './renderers/Canvas2DRenderer.js';
+import WebGLRenderer from './renderers/WebGLRenderer.js';
+import SpriteBatch from './renderers/SpriteBatch.js';
+import ParticleBatch from './renderers/ParticleBatch.js';
+import createRenderer from './renderers/createRenderer.js';
 
 export {
     Jest,
@@ -21,5 +27,11 @@ export {
     GameContext,
     InputManager,
     EntityManager,
-    SceneManager
+    SceneManager,
+    RendererBase,
+    Canvas2DRenderer,
+    WebGLRenderer,
+    SpriteBatch,
+    ParticleBatch,
+    createRenderer
 };

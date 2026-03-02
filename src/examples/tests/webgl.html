@@ -1,0 +1,415 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>WebGL Renderer Test</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                font-family: monospace;
+                background: #1a1a2e;
+                color: #e0e0e0;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+            }
+            h1 {
+                color: #0ff;
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+            canvas {
+                display: block;
+                background: #000;
+                image-rendering: crisp-edges;
+            }
+            #controls {
+                padding: 10px 20px;
+                background: #111;
+            }
+            button {
+                background: #333;
+                color: #fff;
+                border: 1px solid #555;
+                padding: 6px 14px;
+                margin: 3px;
+                cursor: pointer;
+                font-family: monospace;
+                font-size: 12px;
+            }
+            button:hover {
+                background: #555;
+            }
+            #stats {
+                padding: 5px 20px;
+                font-size: 12px;
+                color: #0f0;
+                background: #111;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>
+            WebGL Renderer Test — shapes, textures, particles, labels, blending
+        </h1>
+        <div id="controls">
+            <button id="toggleRenderer">
+                Toggle Renderer (current: <span id="rendererType">...</span>)
+            </button>
+            <button id="fireOneShot">Fire One-Shot (50)</button>
+            <button id="startContinuous">Start Continuous</button>
+            <button id="stopContinuous">Stop Continuous</button>
+            <button id="fireAdditive">Fire Additive Blend</button>
+            <button id="fireTextured">Fire Textured Particles</button>
+            <button id="stressTest">Stress Test (500 burst)</button>
+        </div>
+        <div id="stats"></div>
+        <canvas id="jestCanvas"></canvas>
+        <script type="module">
+            import { Jest, Sprite } from '../../Jest/Jest.js';
+            import Emitter from '../../Jest/Emitter.js';
+            import Label from '../../Jest/Label.js';
+
+            let useWebGL = window.location.hash !== '#canvas2d';
+            let emitter = null;
+
+            Jest.setup({
+                canvas: 'jestCanvas',
+                width: 1920,
+                height: 1080,
+                frameRate: Math.ceil(1000 / 60),
+                showFrameRate: true,
+                showParticleCount: true,
+                forceCanvas2D: !useWebGL
+            });
+
+            const stats = document.getElementById('stats');
+            const rendererTypeSpan = document.getElementById('rendererType');
+
+            Jest.setupGame = function setupGame() {
+                rendererTypeSpan.textContent =
+                    Jest.renderer.type.toUpperCase();
+
+                // --- Shape sprites at various z-orders ---
+                const colors = [
+                    { r: 255, g: 60, b: 60 },
+                    { r: 60, g: 255, b: 60 },
+                    { r: 60, g: 100, b: 255 },
+                    { r: 255, g: 200, b: 50 },
+                    { r: 200, g: 50, b: 255 }
+                ];
+                const zLevels = [1, 3, 5, 8, 10];
+
+                for (let i = 0; i < 5; i++) {
+                    const s = new Sprite({
+                        x: 100 + i * 180,
+                        y: 100,
+                        width: 140,
+                        height: 140,
+                        color: colors[i]
+                    });
+                    s.pos.z = zLevels[i];
+                    Jest.addEntity(s);
+                }
+
+                // --- Overlap z-order test ---
+                const back = new Sprite({
+                    x: 1100,
+                    y: 100,
+                    width: 150,
+                    height: 150,
+                    color: { r: 255, g: 0, b: 0 }
+                });
+                back.pos.z = 1;
+                Jest.addEntity(back);
+
+                const mid = new Sprite({
+                    x: 1140,
+                    y: 140,
+                    width: 150,
+                    height: 150,
+                    color: { r: 0, g: 255, b: 0 }
+                });
+                mid.pos.z = 5;
+                Jest.addEntity(mid);
+
+                const front = new Sprite({
+                    x: 1180,
+                    y: 180,
+                    width: 150,
+                    height: 150,
+                    color: { r: 0, g: 100, b: 255 }
+                });
+                front.pos.z = 10;
+                Jest.addEntity(front);
+
+                // --- Textured sprite ---
+                const smokeRes =
+                    Jest.resourceManager.getResource('smoke');
+                if (smokeRes) {
+                    const texSprite = new Sprite({
+                        x: 1500,
+                        y: 100,
+                        width: 128,
+                        height: 128,
+                        resource: smokeRes
+                    });
+                    texSprite.pos.z = 5;
+                    Jest.addEntity(texSprite);
+                }
+
+                // --- Labels ---
+                const lbl1 = new Label({
+                    text: 'WebGL/Canvas2D Test',
+                    x: 100,
+                    y: 50,
+                    font: '20pt Arial',
+                    color: '#0ff'
+                });
+                lbl1.pos.z = 100;
+                Jest.addEntity(lbl1);
+
+                const lbl2 = new Label({
+                    text: 'Overlap: Red(z1) < Green(z5) < Blue(z10)',
+                    x: 1050,
+                    y: 70,
+                    font: '12pt Arial',
+                    color: '#888'
+                });
+                lbl2.pos.z = 100;
+                Jest.addEntity(lbl2);
+
+                // --- Background layer ---
+                const bg = {
+                    pos: { x: 0, y: 0, z: 0 },
+                    width: 0,
+                    height: 0,
+                    visible: true,
+                    live: true,
+                    bg: true,
+                    bgIndex: 0,
+                    origin: { x: 0, y: 0 },
+                    update() {},
+                    render(ctx) {
+                        const sc = Jest.jestScale;
+                        ctx.fillStyle = 'rgba(20, 20, 40, 0.5)';
+                        ctx.fillRect(0, 0, Jest.bounds.width, 40 * sc);
+                        ctx.fillStyle = '#555';
+                        ctx.font = `${12 * sc}px monospace`;
+                        ctx.fillText('BG Layer 0', 10 * sc, 25 * sc);
+                    }
+                };
+                Jest.addEntity(bg);
+
+                // --- UI layer ---
+                const ui = {
+                    pos: { x: 0, y: 0, z: 0 },
+                    width: 0,
+                    height: 0,
+                    visible: true,
+                    live: true,
+                    ui: true,
+                    uiIndex: 0,
+                    origin: { x: 0, y: 0 },
+                    update() {},
+                    render(ctx) {
+                        const sc = Jest.jestScale;
+                        ctx.fillStyle = 'rgba(0, 200, 200, 0.8)';
+                        const yPos = Jest.bounds.height - 40 * sc;
+                        ctx.fillRect(
+                            Jest.bounds.width - 300 * sc,
+                            yPos,
+                            290 * sc,
+                            35 * sc
+                        );
+                        ctx.fillStyle = '#fff';
+                        ctx.font = `${12 * sc}px monospace`;
+                        ctx.fillText(
+                            'UI Layer 0',
+                            Jest.bounds.width - 290 * sc,
+                            yPos + 22 * sc
+                        );
+                    }
+                };
+                Jest.addEntity(ui);
+
+                // --- Particle emitter ---
+                emitter = new Emitter({
+                    pos: { x: 960, y: 540 },
+                    width: 1920,
+                    height: 1080
+                });
+
+                // Auto-fire a one-shot textured burst on load
+                const smokeAuto =
+                    Jest.resourceManager.getResource('smoke');
+                if (smokeAuto) {
+                    emitter.addGroup({
+                        name: 'smoke-burst',
+                        rate: 100,
+                        oneShot: true,
+                        lifeTime: 3000,
+                        startSize: 64,
+                        endSize: 16,
+                        thrust: 3,
+                        thrustRange: { min: 1, max: 4 },
+                        angleRange: { min: 0, max: 360 },
+                        startColor: { r: 255, g: 180, b: 80 },
+                        endColor: { r: 80, g: 80, b: 80 },
+                        startAlpha: 0.7,
+                        endAlpha: 0,
+                        resource: smokeAuto,
+                        blend: true
+                    });
+                }
+
+                // Stats overlay
+                const updateStats = () => {
+                    const renderer = Jest.renderer;
+                    stats.textContent = `Renderer: ${renderer.type.toUpperCase()} | Particles: ${Jest.particleCount} | Pool: ${emitter.pool.length} | RenderList: ${renderer.renderList.length} | FPS: ${Jest.currentFrameRate}`;
+                    requestAnimationFrame(updateStats);
+                };
+                updateStats();
+
+                this.update();
+            };
+
+            function smoke() {
+                return Jest.resourceManager.getResource('smoke');
+            }
+
+            // --- Button handlers ---
+            document.getElementById('fireOneShot').onclick = () => {
+                if (!emitter) return;
+                emitter.addGroup({
+                    name: 'oneshot',
+                    rate: 50,
+                    oneShot: true,
+                    lifeTime: 2000,
+                    startSize: 48,
+                    endSize: 12,
+                    thrust: 4,
+                    thrustRange: { min: 2, max: 6 },
+                    angleRange: { min: 0, max: 360 },
+                    startColor: { r: 255, g: 200, b: 50 },
+                    endColor: { r: 255, g: 80, b: 0 },
+                    startAlpha: 1,
+                    endAlpha: 0,
+                    resource: smoke(),
+                    blend: true
+                });
+            };
+
+            document.getElementById('startContinuous').onclick = () => {
+                if (!emitter) return;
+                if (!emitter.getGroup('continuous')) {
+                    emitter.addGroup({
+                        name: 'continuous',
+                        rate: 40,
+                        duration: Infinity,
+                        lifeTime: 2500,
+                        startSize: 48,
+                        endSize: 16,
+                        thrust: 2,
+                        thrustRange: { min: 1, max: 4 },
+                        angleRange: { min: 250, max: 290 },
+                        gravity: -0.0003,
+                        startColor: { r: 100, g: 200, b: 255 },
+                        endColor: { r: 50, g: 100, b: 200 },
+                        startAlpha: 0.8,
+                        endAlpha: 0,
+                        resource: smoke(),
+                        blend: true
+                    });
+                } else {
+                    emitter.startGroup('continuous');
+                }
+            };
+
+            document.getElementById('stopContinuous').onclick = () => {
+                if (!emitter) return;
+                emitter.removeGroup('continuous');
+            };
+
+            document.getElementById('fireAdditive').onclick = () => {
+                if (!emitter) return;
+                emitter.addGroup({
+                    name: 'additive',
+                    rate: 60,
+                    oneShot: true,
+                    lifeTime: 2000,
+                    startSize: 64,
+                    endSize: 20,
+                    thrust: 4,
+                    thrustRange: { min: 2, max: 6 },
+                    angleRange: { min: 0, max: 360 },
+                    startColor: { r: 100, g: 150, b: 255 },
+                    endColor: { r: 255, g: 100, b: 200 },
+                    startAlpha: 0.8,
+                    endAlpha: 0,
+                    resource: smoke(),
+                    blend: true
+                });
+            };
+
+            document.getElementById('fireTextured').onclick = () => {
+                if (!emitter) return;
+                emitter.addGroup({
+                    name: 'textured',
+                    rate: 40,
+                    oneShot: true,
+                    lifeTime: 2500,
+                    startSize: 96,
+                    endSize: 32,
+                    thrust: 3,
+                    thrustRange: { min: 1, max: 4 },
+                    angleRange: { min: 0, max: 360 },
+                    startColor: { r: 255, g: 200, b: 100 },
+                    endColor: { r: 100, g: 50, b: 20 },
+                    startAlpha: 0.6,
+                    endAlpha: 0,
+                    resource: smoke(),
+                    blend: true
+                });
+            };
+
+            document.getElementById('stressTest').onclick = () => {
+                if (!emitter) return;
+                emitter.addGroup({
+                    name: 'stress',
+                    rate: 500,
+                    oneShot: true,
+                    lifeTime: 3000,
+                    startSize: 32,
+                    endSize: 8,
+                    thrust: 4,
+                    thrustRange: { min: 2, max: 6 },
+                    angleRange: { min: 0, max: 360 },
+                    startColor: { r: 255, g: 255, b: 255 },
+                    endColor: { r: 255, g: 50, b: 0 },
+                    startAlpha: 1,
+                    endAlpha: 0,
+                    resource: smoke(),
+                    blend: true
+                });
+            };
+
+            // Toggle renderer
+            document.getElementById('toggleRenderer').onclick = () => {
+                window.location.hash = useWebGL ? '#canvas2d' : '';
+                window.location.reload();
+            };
+
+            // Load resources and start
+            Jest.resourceManager.add(
+                './smoke.png',
+                'img',
+                'smoke'
+            );
+            window.onload = () => Jest.load();
+        </script>
+    </body>
+</html>

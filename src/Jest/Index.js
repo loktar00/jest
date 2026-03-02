@@ -51,10 +51,8 @@ class Jest extends GameContext {
                 document.documentElement.scrollTop;
         }
 
-        this.cX =
-            (this.cX - this.renderCanvas.offsetLeft) / this.jestScale;
-        this.cY =
-            (this.cY - this.renderCanvas.offsetTop) / this.jestScale;
+        this.cX = (this.cX - this.renderCanvas.offsetLeft) / this.jestScale;
+        this.cY = (this.cY - this.renderCanvas.offsetTop) / this.jestScale;
 
         let id = this.entities.length;
         const { entities } = this;
@@ -89,8 +87,7 @@ class Jest extends GameContext {
     mouseDown(event) {
         this.mdX =
             (event.pageX - this.renderCanvas.offsetLeft) / this.jestScale;
-        this.mdY =
-            (event.pageY - this.renderCanvas.offsetTop) / this.jestScale;
+        this.mdY = (event.pageY - this.renderCanvas.offsetTop) / this.jestScale;
 
         let id = this.entities.length;
         const { entities } = this;
@@ -100,11 +97,9 @@ class Jest extends GameContext {
             if (entity.clickable && entity.pos && entity.origin) {
                 if (
                     this.mdX > entity.pos.x - entity.origin.x &&
-                    this.mdX <
-                        entity.pos.x - entity.origin.x + entity.width &&
+                    this.mdX < entity.pos.x - entity.origin.x + entity.width &&
                     this.mdY > entity.pos.y - entity.origin.y &&
-                    this.mdY <
-                        entity.pos.y - entity.origin.y + entity.height
+                    this.mdY < entity.pos.y - entity.origin.y + entity.height
                 ) {
                     entity.mouseDown();
                 }

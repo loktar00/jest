@@ -23,9 +23,7 @@ export default class EntityManager {
             }
         } else {
             this.entities.push(object);
-            object.state = sceneManager
-                ? sceneManager.currentState
-                : null;
+            object.state = sceneManager ? sceneManager.currentState : null;
         }
 
         if (!renderFalse) {

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
         <title>EventBus Test</title>
@@ -9,10 +9,19 @@
                 color: #e0e0e0;
                 padding: 20px;
             }
-            h1 { color: #0ff; }
-            .pass { color: #0f0; }
-            .fail { color: #f44; }
-            #log { white-space: pre; line-height: 1.8; }
+            h1 {
+                color: #0ff;
+            }
+            .pass {
+                color: #0f0;
+            }
+            .fail {
+                color: #f44;
+            }
+            #log {
+                white-space: pre;
+                line-height: 1.8;
+            }
             button {
                 background: #333;
                 color: #fff;
@@ -22,7 +31,9 @@
                 cursor: pointer;
                 font-family: monospace;
             }
-            button:hover { background: #555; }
+            button:hover {
+                background: #555;
+            }
         </style>
     </head>
     <body>
@@ -50,81 +61,131 @@
                 log.innerHTML += `      ${msg}\n`;
             }
 
-            document.getElementById('runTests').addEventListener('click', () => {
-                log.innerHTML = '';
-                testNum = 0;
+            document
+                .getElementById('runTests')
+                .addEventListener('click', () => {
+                    log.innerHTML = '';
+                    testNum = 0;
 
-                const bus = new EventBus();
+                    const bus = new EventBus();
 
-                // Test 1: on + emit
-                let received = false;
-                bus.on('test1', () => { received = true; });
-                bus.emit('test1');
-                assert(received === true, 'on() + emit() delivers event');
+                    // Test 1: on + emit
+                    let received = false;
+                    bus.on('test1', () => {
+                        received = true;
+                    });
+                    bus.emit('test1');
+                    assert(received === true, 'on() + emit() delivers event');
 
-                // Test 2: emit with data
-                let data = null;
-                bus.on('test2', (d) => { data = d; });
-                bus.emit('test2', { x: 42 });
-                assert(data && data.x === 42, 'emit() passes data to handler');
+                    // Test 2: emit with data
+                    let data = null;
+                    bus.on('test2', (d) => {
+                        data = d;
+                    });
+                    bus.emit('test2', { x: 42 });
+                    assert(
+                        data && data.x === 42,
+                        'emit() passes data to handler'
+                    );
 
-                // Test 3: multiple args
-                let a1 = 0;
-                let a2 = 0;
-                bus.on('test3', (x, y) => { a1 = x; a2 = y; });
-                bus.emit('test3', 10, 20);
-                assert(a1 === 10 && a2 === 20, 'emit() passes multiple args');
+                    // Test 3: multiple args
+                    let a1 = 0;
+                    let a2 = 0;
+                    bus.on('test3', (x, y) => {
+                        a1 = x;
+                        a2 = y;
+                    });
+                    bus.emit('test3', 10, 20);
+                    assert(
+                        a1 === 10 && a2 === 20,
+                        'emit() passes multiple args'
+                    );
 
-                // Test 4: multiple listeners
-                let count = 0;
-                bus.on('test4', () => { count++; });
-                bus.on('test4', () => { count++; });
-                bus.on('test4', () => { count++; });
-                bus.emit('test4');
-                assert(count === 3, 'Multiple listeners all fire (3 listeners = 3 calls)');
+                    // Test 4: multiple listeners
+                    let count = 0;
+                    bus.on('test4', () => {
+                        count++;
+                    });
+                    bus.on('test4', () => {
+                        count++;
+                    });
+                    bus.on('test4', () => {
+                        count++;
+                    });
+                    bus.emit('test4');
+                    assert(
+                        count === 3,
+                        'Multiple listeners all fire (3 listeners = 3 calls)'
+                    );
 
-                // Test 5: off removes specific listener
-                let offResult = 0;
-                const handler = () => { offResult++; };
-                bus.on('test5', handler);
-                bus.emit('test5');
-                bus.off('test5', handler);
-                bus.emit('test5');
-                assert(offResult === 1, 'off() removes specific listener (fired once, not twice)');
+                    // Test 5: off removes specific listener
+                    let offResult = 0;
+                    const handler = () => {
+                        offResult++;
+                    };
+                    bus.on('test5', handler);
+                    bus.emit('test5');
+                    bus.off('test5', handler);
+                    bus.emit('test5');
+                    assert(
+                        offResult === 1,
+                        'off() removes specific listener (fired once, not twice)'
+                    );
 
-                // Test 6: off without callback removes all
-                let offAllCount = 0;
-                bus.on('test6', () => { offAllCount++; });
-                bus.on('test6', () => { offAllCount++; });
-                bus.off('test6');
-                bus.emit('test6');
-                assert(offAllCount === 0, 'off(event) with no callback removes all listeners');
+                    // Test 6: off without callback removes all
+                    let offAllCount = 0;
+                    bus.on('test6', () => {
+                        offAllCount++;
+                    });
+                    bus.on('test6', () => {
+                        offAllCount++;
+                    });
+                    bus.off('test6');
+                    bus.emit('test6');
+                    assert(
+                        offAllCount === 0,
+                        'off(event) with no callback removes all listeners'
+                    );
 
-                // Test 7: once
-                let onceCount = 0;
-                bus.once('test7', () => { onceCount++; });
-                bus.emit('test7');
-                bus.emit('test7');
-                bus.emit('test7');
-                assert(onceCount === 1, 'once() fires exactly once (emitted 3 times, count=1)');
+                    // Test 7: once
+                    let onceCount = 0;
+                    bus.once('test7', () => {
+                        onceCount++;
+                    });
+                    bus.emit('test7');
+                    bus.emit('test7');
+                    bus.emit('test7');
+                    assert(
+                        onceCount === 1,
+                        'once() fires exactly once (emitted 3 times, count=1)'
+                    );
 
-                // Test 8: emit non-existent event
-                let threw = false;
-                try {
-                    bus.emit('doesNotExist');
-                } catch (e) {
-                    threw = true;
-                }
-                assert(!threw, 'Emitting non-existent event does not throw');
+                    // Test 8: emit non-existent event
+                    let threw = false;
+                    try {
+                        bus.emit('doesNotExist');
+                    } catch (e) {
+                        threw = true;
+                    }
+                    assert(
+                        !threw,
+                        'Emitting non-existent event does not throw'
+                    );
 
-                // Test 9: chaining
-                const bus2 = new EventBus();
-                const result = bus2.on('chain', () => {}).emit('chain').off('chain');
-                assert(result === bus2, 'Methods are chainable (return this)');
+                    // Test 9: chaining
+                    const bus2 = new EventBus();
+                    const result = bus2
+                        .on('chain', () => {})
+                        .emit('chain')
+                        .off('chain');
+                    assert(
+                        result === bus2,
+                        'Methods are chainable (return this)'
+                    );
 
-                logMsg('');
-                logMsg(`All tests complete: ${testNum} tests run`);
-            });
+                    logMsg('');
+                    logMsg(`All tests complete: ${testNum} tests run`);
+                });
 
             // Interactive tests
             const liveBus = new EventBus();
@@ -137,14 +198,18 @@
                 logMsg('[LIVE] oneshot fired! (will not fire again)');
             });
 
-            document.getElementById('emitCustom').addEventListener('click', () => {
-                liveBus.emit('hello', 'world ' + Date.now());
-            });
+            document
+                .getElementById('emitCustom')
+                .addEventListener('click', () => {
+                    liveBus.emit('hello', 'world ' + Date.now());
+                });
 
-            document.getElementById('emitOnce').addEventListener('click', () => {
-                liveBus.emit('oneshot');
-                logMsg('[LIVE] oneshot emit attempted');
-            });
+            document
+                .getElementById('emitOnce')
+                .addEventListener('click', () => {
+                    liveBus.emit('oneshot');
+                    logMsg('[LIVE] oneshot emit attempted');
+                });
         </script>
     </body>
 </html>

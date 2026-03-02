@@ -1,9 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
+        <meta charset="UTF-8" />
         <title>Scene/State Test</title>
         <style>
-            * { margin: 0; padding: 0; }
+            * {
+                margin: 0;
+                padding: 0;
+            }
             body {
                 font-family: monospace;
                 background: #1a1a2e;
@@ -12,7 +16,11 @@
                 flex-direction: column;
                 height: 100vh;
             }
-            h1 { color: #0ff; padding: 10px 20px; font-size: 16px; }
+            h1 {
+                color: #0ff;
+                padding: 10px 20px;
+                font-size: 16px;
+            }
             canvas {
                 display: block;
                 background: #000;
@@ -32,8 +40,13 @@
                 font-family: monospace;
                 font-size: 12px;
             }
-            button:hover { background: #555; }
-            button.active { background: #066; border-color: #0ff; }
+            button:hover {
+                background: #555;
+            }
+            button.active {
+                background: #066;
+                border-color: #0ff;
+            }
             #stats {
                 padding: 5px 20px;
                 font-size: 12px;
@@ -52,7 +65,10 @@
         </style>
     </head>
     <body>
-        <h1>Scene/State Test — switch between states, each with independent entities</h1>
+        <h1>
+            Scene/State Test — switch between states, each with independent
+            entities
+        </h1>
         <div id="controls">
             <button id="switchRed" class="active">State: Red</button>
             <button id="switchBlue">State: Blue</button>
@@ -88,10 +104,16 @@
             Jest.eventBus.on('stateChange', (state) => {
                 log(`stateChange → "${state.name}" (id: ${state.id})`);
                 // Update button styles
-                document.querySelectorAll('#controls button[id^="switch"]').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                const btnMap = { Red: 'switchRed', Blue: 'switchBlue', Green: 'switchGreen' };
+                document
+                    .querySelectorAll('#controls button[id^="switch"]')
+                    .forEach((btn) => {
+                        btn.classList.remove('active');
+                    });
+                const btnMap = {
+                    Red: 'switchRed',
+                    Blue: 'switchBlue',
+                    Green: 'switchGreen'
+                };
                 const btn = document.getElementById(btnMap[state.name]);
                 if (btn) btn.classList.add('active');
             });
@@ -111,10 +133,14 @@
                 const origUpdate = entity.update.bind(entity);
                 entity.update = function update(dt) {
                     origUpdate(dt);
-                    this.pos.x += Math.cos(this.dir) * this.speed * dt * Jest.jestScale;
-                    this.pos.y += Math.sin(this.dir) * this.speed * dt * Jest.jestScale;
-                    if (this.pos.x < 0 || this.pos.x > Jest.bounds.width) this.dir = Math.PI - this.dir;
-                    if (this.pos.y < 0 || this.pos.y > Jest.bounds.height) this.dir = -this.dir;
+                    this.pos.x +=
+                        Math.cos(this.dir) * this.speed * dt * Jest.jestScale;
+                    this.pos.y +=
+                        Math.sin(this.dir) * this.speed * dt * Jest.jestScale;
+                    if (this.pos.x < 0 || this.pos.x > Jest.bounds.width)
+                        this.dir = Math.PI - this.dir;
+                    if (this.pos.y < 0 || this.pos.y > Jest.bounds.height)
+                        this.dir = -this.dir;
                 };
 
                 return entity;
@@ -154,11 +180,15 @@
 
                 for (let i = 0; i < 8; i++) {
                     const box = makeMovingBox(stateColors.Green, 'Green');
-                    Jest.addEntity(box, false, Jest.getState({ name: 'Green' }));
+                    Jest.addEntity(
+                        box,
+                        false,
+                        Jest.getState({ name: 'Green' })
+                    );
                 }
 
                 // Add labels to each state
-                ['Red', 'Blue', 'Green'].forEach(name => {
+                ['Red', 'Blue', 'Green'].forEach((name) => {
                     const lbl = new Label({
                         text: `State: ${name}`,
                         x: 20,
@@ -173,9 +203,12 @@
 
                 const updateStats = () => {
                     const curState = Jest.currentState;
-                    const stateInfo = Jest.states.map(s =>
-                        `${s.name}(${s.entityList.length}e/${s.renderList.length}r)`
-                    ).join(' | ');
+                    const stateInfo = Jest.states
+                        .map(
+                            (s) =>
+                                `${s.name}(${s.entityList.length}e/${s.renderList.length}r)`
+                        )
+                        .join(' | ');
                     stats.textContent = `Current: "${curState.name}" | States: ${stateInfo} | Total states: ${Jest.states.length}`;
                     requestAnimationFrame(updateStats);
                 };
@@ -184,23 +217,37 @@
                 this.update();
             };
 
-            document.getElementById('switchRed').addEventListener('click', () => {
-                Jest.switchState({ name: 'Red' });
-            });
-            document.getElementById('switchBlue').addEventListener('click', () => {
-                Jest.switchState({ name: 'Blue' });
-            });
-            document.getElementById('switchGreen').addEventListener('click', () => {
-                Jest.switchState({ name: 'Green' });
-            });
+            document
+                .getElementById('switchRed')
+                .addEventListener('click', () => {
+                    Jest.switchState({ name: 'Red' });
+                });
+            document
+                .getElementById('switchBlue')
+                .addEventListener('click', () => {
+                    Jest.switchState({ name: 'Blue' });
+                });
+            document
+                .getElementById('switchGreen')
+                .addEventListener('click', () => {
+                    Jest.switchState({ name: 'Green' });
+                });
 
-            document.getElementById('addToState').addEventListener('click', () => {
-                const curState = Jest.currentState;
-                const color = stateColors[curState.name] || { r: 255, g: 255, b: 255 };
-                const box = makeMovingBox(color, curState.name);
-                Jest.addEntity(box);
-                log(`Added entity to "${curState.name}" (now ${curState.entityList.length} entities)`);
-            });
+            document
+                .getElementById('addToState')
+                .addEventListener('click', () => {
+                    const curState = Jest.currentState;
+                    const color = stateColors[curState.name] || {
+                        r: 255,
+                        g: 255,
+                        b: 255
+                    };
+                    const box = makeMovingBox(color, curState.name);
+                    Jest.addEntity(box);
+                    log(
+                        `Added entity to "${curState.name}" (now ${curState.entityList.length} entities)`
+                    );
+                });
 
             window.onload = () => Jest.load();
         </script>

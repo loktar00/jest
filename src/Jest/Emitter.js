@@ -1,8 +1,8 @@
-import { Jest } from './Jest.js';
 import Particle from './Particle.js';
 
 export default class Emitter {
-    constructor(options = {}) {
+    constructor(options = {}, context = null) {
+        this.ctx = context || Jest;
         this.live = true;
         this.particleGroups = [];
 
@@ -10,21 +10,25 @@ export default class Emitter {
         this.lastUpdate = Date.now();
         this.startTime = Date.now();
 
+        const scale = this.ctx.jestScale;
+
         // Apply scale to emitter size
-        this.width = (options.width || Jest.bounds.width) * Jest.jestScale;
-        this.height = (options.height || Jest.bounds.height) * Jest.jestScale;
+        this.width =
+            (options.width || this.ctx.bounds.width) * scale;
+        this.height =
+            (options.height || this.ctx.bounds.height) * scale;
 
         // Apply scale to initial position
         this.pos = {
-            x: (options.pos?.x || 0) * Jest.jestScale,
-            y: (options.pos?.y || 0) * Jest.jestScale,
-            z: options.pos?.z || 0 // Assuming z-scale is not required, else apply Jest.jestScale
+            x: (options.pos?.x || 0) * scale,
+            y: (options.pos?.y || 0) * scale,
+            z: options.pos?.z || 0
         };
 
         this.particles = [];
         this.pool = [];
 
-        Jest.addEntity(this, true);
+        this.ctx.addEntity(this, true);
     }
 
     getParticles() {
@@ -108,17 +112,20 @@ export default class Emitter {
         const currentTime = new Date().getTime();
 
         const { particleGroups } = this;
-        const util = Jest.utilities;
+        const util = this.ctx.utilities;
+        const scale = this.ctx.jestScale;
 
         let pg = particleGroups.length;
 
         while (pg--) {
             const currentGroup = particleGroups[pg];
-            const elapsedTime = (currentTime - currentGroup.lastUpdate) / 1000;
+            const elapsedTime =
+                (currentTime - currentGroup.lastUpdate) / 1000;
 
             if (
-                currentTime > currentGroup.startTime + currentGroup.delay &&
-                Jest.currentFrameRate > 30
+                currentTime >
+                    currentGroup.startTime + currentGroup.delay &&
+                this.ctx.currentFrameRate > 30
             ) {
                 let particlesToEmit = Math.floor(
                     currentGroup.rate * elapsedTime
@@ -129,7 +136,8 @@ export default class Emitter {
                     currentGroup.oneShot &&
                     currentGroup.duration === -Infinity
                 ) {
-                    particlesToEmit = elapsedTime > 0 ? currentGroup.rate : 0;
+                    particlesToEmit =
+                        elapsedTime > 0 ? currentGroup.rate : 0;
                     currentGroup.duration = 100;
                 }
 
@@ -141,18 +149,16 @@ export default class Emitter {
                         currentGroup.duration === Infinity)
                 ) {
                     if (currentGroup.oneShot && particlesToEmit > 0) {
-                        // if it's one shot make it's duration 0 since we don't want it to emit again
                         currentGroup.duration = -1;
                     }
 
-                    currentGroup.lastUpdate = currentTime; // Update the last update time
+                    currentGroup.lastUpdate = currentTime;
 
                     while (particlesToEmit--) {
                         if (currentGroup.posRangeX) {
                             const xRange = util.getRandomRange(
-                                currentGroup.posRangeX.start * Jest.jestScale, // Scaled
-                                (currentGroup.posRangeX.end || 0) *
-                                    Jest.jestScale // Scaled
+                                currentGroup.posRangeX.start * scale,
+                                (currentGroup.posRangeX.end || 0) * scale
                             );
                             currentGroup.x = this.pos.x + xRange;
                         } else {
@@ -161,9 +167,8 @@ export default class Emitter {
 
                         if (currentGroup.posRangeY) {
                             const yRange = util.getRandomRange(
-                                currentGroup.posRangeY.start * Jest.jestScale, // Scaled
-                                (currentGroup.posRangeY.end || 0) *
-                                    Jest.jestScale // Scaled
+                                currentGroup.posRangeY.start * scale,
+                                (currentGroup.posRangeY.end || 0) * scale
                             );
                             currentGroup.y = this.pos.y + yRange;
                         } else {
@@ -183,7 +188,9 @@ export default class Emitter {
                                     thrustRange.min,
                                     thrustRange.max
                                 );
-                            } else if (typeof thrustRange.max !== 'undefined') {
+                            } else if (
+                                typeof thrustRange.max !== 'undefined'
+                            ) {
                                 currentGroup.thrust = util.getRandomRange(
                                     0,
                                     thrustRange.max
@@ -196,26 +203,33 @@ export default class Emitter {
                                 typeof angleRange.max !== 'undefined' &&
                                 typeof angleRange.min !== 'undefined'
                             ) {
-                                currentGroup.angle = util.fGetRandomRange(
-                                    angleRange.min,
-                                    angleRange.max
-                                );
-                            } else if (typeof angleRange.max !== 'undefined') {
-                                currentGroup.angle = util.fGetRandomRange(
-                                    0,
-                                    angleRange.max
-                                );
+                                currentGroup.angle =
+                                    util.fGetRandomRange(
+                                        angleRange.min,
+                                        angleRange.max
+                                    );
+                            } else if (
+                                typeof angleRange.max !== 'undefined'
+                            ) {
+                                currentGroup.angle =
+                                    util.fGetRandomRange(
+                                        0,
+                                        angleRange.max
+                                    );
                             }
                         }
 
                         // Add or recycle particle
                         if (!this.pool.length) {
-                            const curParticle = new Particle({
-                                ...currentGroup,
-                                ...{ pool: this.pool }
-                            });
+                            const curParticle = new Particle(
+                                {
+                                    ...currentGroup,
+                                    ...{ pool: this.pool }
+                                },
+                                this.ctx
+                            );
                             this.particles.push(curParticle);
-                            Jest.addEntity(curParticle);
+                            this.ctx.addEntity(curParticle);
                         } else {
                             const curParticle = this.pool.pop();
                             curParticle.initialize({

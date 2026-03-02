@@ -1,13 +1,13 @@
-import { Jest, Sprite } from './Jest.js';
+import { Sprite } from './Jest.js';
 
 export default class Particle extends Sprite {
-    constructor(options = {}) {
-        super(options);
+    constructor(options = {}, context = null) {
+        super(options, context);
     }
 
-    initialize(options = {}) {
-        super.initialize(options);
-        Jest.particleCount++;
+    initialize(options, context) {
+        super.initialize(options, context);
+        this.ctx.particleCount++;
 
         this.visible = true;
         this.emitterPool = options.pool;
@@ -20,7 +20,7 @@ export default class Particle extends Sprite {
         this.delay = options.delay || 0;
 
         this.size = options.size || options.startSize || 1;
-        this.size *= Jest.jestScale;
+        this.size *= this.ctx.jestScale;
 
         this.scale = {
             x: 1,
@@ -57,8 +57,8 @@ export default class Particle extends Sprite {
 
         // originating positon
         this.originalPos = {
-            x: this.pos.x / Jest.jestScale,
-            y: this.pos.y / Jest.jestScale
+            x: this.pos.x / this.ctx.jestScale,
+            y: this.pos.y / this.ctx.jestScale
         };
 
         this.endLife = this.startLife + this.lifeTime;
@@ -68,7 +68,7 @@ export default class Particle extends Sprite {
 
         if (this.endColor !== this.startColor) {
             for (
-                let i = Math.ceil(this.lifeTime / Jest.frameRate) + 1;
+                let i = Math.ceil(this.lifeTime / this.ctx.frameRate) + 1;
                 i > -1;
                 i--
             ) {
@@ -77,7 +77,7 @@ export default class Particle extends Sprite {
                         this.startColor,
                         this.endColor,
                         this.lifeTime,
-                        i * Jest.frameRate
+                        i * this.ctx.frameRate
                     )
                 );
             }
@@ -99,8 +99,8 @@ export default class Particle extends Sprite {
         this.originalPos.y += this.vel.y;
 
         // Scale the original position to get the current position
-        this.pos.x = this.originalPos.x * Jest.jestScale;
-        this.pos.y = this.originalPos.y * Jest.jestScale;
+        this.pos.x = this.originalPos.x * this.ctx.jestScale;
+        this.pos.y = this.originalPos.y * this.ctx.jestScale;
 
         if (this.visible) {
             let dead = false;
@@ -108,7 +108,7 @@ export default class Particle extends Sprite {
             // Bounds check
             if (
                 this.pos.y < 0 ||
-                this.pos.y > Jest.bounds.y + Jest.bounds.height
+                this.pos.y > this.ctx.bounds.y + this.ctx.bounds.height
             ) {
                 dead = true;
             }
@@ -121,7 +121,7 @@ export default class Particle extends Sprite {
             if (dead) {
                 this.visible = false;
                 this.emitterPool.push(this);
-                Jest.particleCount--;
+                this.ctx.particleCount--;
             }
         }
 
@@ -145,7 +145,7 @@ export default class Particle extends Sprite {
         if (this.endColor !== this.startColor) {
             this.color =
                 this.colors[
-                    Math.ceil((this.lifeTime - this.curStep) / Jest.frameRate)
+                    Math.ceil((this.lifeTime - this.curStep) / this.ctx.frameRate)
                 ];
         }
 
@@ -212,26 +212,26 @@ export default class Particle extends Sprite {
                 context.rotate(rotAngle);
                 context.drawImage(
                     this.resource.source,
-                    this.startX * Jest.jestScale, // If you want to scale the source clipping
-                    this.startY * Jest.jestScale, // If you want to scale the source clipping
-                    width * Jest.jestScale,
-                    height * Jest.jestScale,
+                    this.startX * this.ctx.jestScale, // If you want to scale the source clipping
+                    this.startY * this.ctx.jestScale, // If you want to scale the source clipping
+                    width * this.ctx.jestScale,
+                    height * this.ctx.jestScale,
                     -oX,
                     -oY,
-                    (width - scale.x) * Jest.jestScale,
-                    (height - scale.y) * Jest.jestScale
+                    (width - scale.x) * this.ctx.jestScale,
+                    (height - scale.y) * this.ctx.jestScale
                 );
             } else {
                 context.drawImage(
                     this.resource.source,
                     this.startX,
                     this.startY,
-                    width * Jest.jestScale, // Scale the width
-                    height * Jest.jestScale, // Scale the height
-                    (x - oX) * Jest.jestScale, // Scale the x position
-                    (y - oY) * Jest.jestScale, // Scale the y position
-                    (width - scale.x) * Jest.jestScale, // Scale the width offset
-                    (height - scale.y) * Jest.jestScale // Scale the height offset
+                    width * this.ctx.jestScale, // Scale the width
+                    height * this.ctx.jestScale, // Scale the height
+                    (x - oX) * this.ctx.jestScale, // Scale the x position
+                    (y - oY) * this.ctx.jestScale, // Scale the y position
+                    (width - scale.x) * this.ctx.jestScale, // Scale the width offset
+                    (height - scale.y) * this.ctx.jestScale // Scale the height offset
                 );
             }
         } else {
@@ -247,17 +247,17 @@ export default class Particle extends Sprite {
                 context.translate(x, y);
                 context.rotate(rotAngle);
                 context.fillRect(
-                    -oX * Jest.jestScale,
-                    -oY * Jest.jestScale,
-                    (width - scale.x) * Jest.jestScale,
-                    (height - scale.y) * Jest.jestScale
+                    -oX * this.ctx.jestScale,
+                    -oY * this.ctx.jestScale,
+                    (width - scale.x) * this.ctx.jestScale,
+                    (height - scale.y) * this.ctx.jestScale
                 );
             } else {
                 context.fillRect(
-                    (x - oX) * Jest.jestScale, // Scale the x position
-                    (y - oY) * Jest.jestScale, // Scale the y position
-                    (width - scale.x) * Jest.jestScale, // Scale the width
-                    (height - scale.y) * Jest.jestScale // Scale the height
+                    (x - oX) * this.ctx.jestScale, // Scale the x position
+                    (y - oY) * this.ctx.jestScale, // Scale the y position
+                    (width - scale.x) * this.ctx.jestScale, // Scale the width
+                    (height - scale.y) * this.ctx.jestScale // Scale the height
                 );
             }
         }

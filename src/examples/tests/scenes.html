@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Scene/State Test</title>
+        <style>
+            * { margin: 0; padding: 0; }
+            body {
+                font-family: monospace;
+                background: #1a1a2e;
+                color: #e0e0e0;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+            }
+            h1 { color: #0ff; padding: 10px 20px; font-size: 16px; }
+            canvas {
+                display: block;
+                background: #000;
+                image-rendering: crisp-edges;
+            }
+            #controls {
+                padding: 10px 20px;
+                background: #111;
+            }
+            button {
+                background: #333;
+                color: #fff;
+                border: 1px solid #555;
+                padding: 6px 14px;
+                margin: 3px;
+                cursor: pointer;
+                font-family: monospace;
+                font-size: 12px;
+            }
+            button:hover { background: #555; }
+            button.active { background: #066; border-color: #0ff; }
+            #stats {
+                padding: 5px 20px;
+                font-size: 12px;
+                color: #0f0;
+                background: #111;
+            }
+            #log {
+                padding: 5px 20px;
+                font-size: 11px;
+                color: #888;
+                background: #111;
+                max-height: 100px;
+                overflow-y: auto;
+                white-space: pre;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Scene/State Test — switch between states, each with independent entities</h1>
+        <div id="controls">
+            <button id="switchRed" class="active">State: Red</button>
+            <button id="switchBlue">State: Blue</button>
+            <button id="switchGreen">State: Green</button>
+            <button id="addToState">Add Entity to Current</button>
+        </div>
+        <div id="stats"></div>
+        <div id="log"></div>
+        <canvas id="jestCanvas"></canvas>
+        <script type="module">
+            import { Jest, Sprite } from '../../Jest/Jest.js';
+            import Label from '../../Jest/Label.js';
+
+            Jest.setup({
+                canvas: 'jestCanvas',
+                width: 1920,
+                height: 1080,
+                frameRate: Math.ceil(1000 / 60),
+                showFrameRate: true
+            });
+
+            const stats = document.getElementById('stats');
+            const logEl = document.getElementById('log');
+            const logLines = [];
+
+            function log(msg) {
+                logLines.unshift(msg);
+                if (logLines.length > 15) logLines.pop();
+                logEl.textContent = logLines.join('\n');
+            }
+
+            // Track state changes
+            Jest.eventBus.on('stateChange', (state) => {
+                log(`stateChange → "${state.name}" (id: ${state.id})`);
+                // Update button styles
+                document.querySelectorAll('#controls button[id^="switch"]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                const btnMap = { Red: 'switchRed', Blue: 'switchBlue', Green: 'switchGreen' };
+                const btn = document.getElementById(btnMap[state.name]);
+                if (btn) btn.classList.add('active');
+            });
+
+            function makeMovingBox(color, label) {
+                const entity = new Sprite({
+                    x: Math.random() * 1600 + 160,
+                    y: Math.random() * 800 + 100,
+                    width: 40 + Math.random() * 30,
+                    height: 40 + Math.random() * 30,
+                    color
+                });
+                entity.speed = 40 + Math.random() * 80;
+                entity.dir = Math.random() * Math.PI * 2;
+                entity.label = label;
+
+                const origUpdate = entity.update.bind(entity);
+                entity.update = function update(dt) {
+                    origUpdate(dt);
+                    this.pos.x += Math.cos(this.dir) * this.speed * dt * Jest.jestScale;
+                    this.pos.y += Math.sin(this.dir) * this.speed * dt * Jest.jestScale;
+                    if (this.pos.x < 0 || this.pos.x > Jest.bounds.width) this.dir = Math.PI - this.dir;
+                    if (this.pos.y < 0 || this.pos.y > Jest.bounds.height) this.dir = -this.dir;
+                };
+
+                return entity;
+            }
+
+            const stateColors = {
+                Red: { r: 255, g: 60, b: 60 },
+                Blue: { r: 60, g: 100, b: 255 },
+                Green: { r: 60, g: 220, b: 80 }
+            };
+
+            Jest.setupGame = function setupGame() {
+                // Create three states with enterState callbacks
+                Jest.addState('Red', () => {
+                    log('enterState callback fired for "Red"');
+                });
+                Jest.addState('Blue', () => {
+                    log('enterState callback fired for "Blue"');
+                });
+                Jest.addState('Green', () => {
+                    log('enterState callback fired for "Green"');
+                });
+
+                // Switch to Red (id=1 since default state is id=0)
+                Jest.switchState({ name: 'Red' });
+
+                // Add initial entities to each state
+                for (let i = 0; i < 5; i++) {
+                    const box = makeMovingBox(stateColors.Red, 'Red');
+                    Jest.addEntity(box, false, Jest.getState({ name: 'Red' }));
+                }
+
+                for (let i = 0; i < 3; i++) {
+                    const box = makeMovingBox(stateColors.Blue, 'Blue');
+                    Jest.addEntity(box, false, Jest.getState({ name: 'Blue' }));
+                }
+
+                for (let i = 0; i < 8; i++) {
+                    const box = makeMovingBox(stateColors.Green, 'Green');
+                    Jest.addEntity(box, false, Jest.getState({ name: 'Green' }));
+                }
+
+                // Add labels to each state
+                ['Red', 'Blue', 'Green'].forEach(name => {
+                    const lbl = new Label({
+                        text: `State: ${name}`,
+                        x: 20,
+                        y: 50,
+                        font: '20pt Arial',
+                        color: `rgb(${stateColors[name].r},${stateColors[name].g},${stateColors[name].b})`
+                    });
+                    Jest.addEntity(lbl, false, Jest.getState({ name }));
+                });
+
+                log('3 states created: Red (5 entities), Blue (3), Green (8)');
+
+                const updateStats = () => {
+                    const curState = Jest.currentState;
+                    const stateInfo = Jest.states.map(s =>
+                        `${s.name}(${s.entityList.length}e/${s.renderList.length}r)`
+                    ).join(' | ');
+                    stats.textContent = `Current: "${curState.name}" | States: ${stateInfo} | Total states: ${Jest.states.length}`;
+                    requestAnimationFrame(updateStats);
+                };
+                updateStats();
+
+                this.update();
+            };
+
+            document.getElementById('switchRed').addEventListener('click', () => {
+                Jest.switchState({ name: 'Red' });
+            });
+            document.getElementById('switchBlue').addEventListener('click', () => {
+                Jest.switchState({ name: 'Blue' });
+            });
+            document.getElementById('switchGreen').addEventListener('click', () => {
+                Jest.switchState({ name: 'Green' });
+            });
+
+            document.getElementById('addToState').addEventListener('click', () => {
+                const curState = Jest.currentState;
+                const color = stateColors[curState.name] || { r: 255, g: 255, b: 255 };
+                const box = makeMovingBox(color, curState.name);
+                Jest.addEntity(box);
+                log(`Added entity to "${curState.name}" (now ${curState.entityList.length} entities)`);
+            });
+
+            window.onload = () => Jest.load();
+        </script>
+    </body>
+</html>

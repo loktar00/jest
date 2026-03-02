@@ -39,10 +39,10 @@ export default class BouncingBox {
         const { color } = this;
         context.fillStyle = `rgba(${color.r},${color.g},${color.b},${this.alpha})`;
         context.fillRect(
-            this.pos.x * Jest.jestScale,
-            this.pos.y * Jest.jestScale,
-            this.width * Jest.jestScale,
-            this.height * Jest.jestScale
+            this.pos.x,
+            this.pos.y,
+            this.width,
+            this.height
         );
     }
 

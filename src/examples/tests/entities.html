@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Entity Lifecycle Test</title>
+        <style>
+            * { margin: 0; padding: 0; }
+            body {
+                font-family: monospace;
+                background: #1a1a2e;
+                color: #e0e0e0;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+            }
+            h1 { color: #0ff; padding: 10px 20px; font-size: 16px; }
+            canvas {
+                display: block;
+                background: #000;
+                image-rendering: crisp-edges;
+            }
+            #controls {
+                padding: 10px 20px;
+                background: #111;
+            }
+            button {
+                background: #333;
+                color: #fff;
+                border: 1px solid #555;
+                padding: 6px 14px;
+                margin: 3px;
+                cursor: pointer;
+                font-family: monospace;
+                font-size: 12px;
+            }
+            button:hover { background: #555; }
+            #stats {
+                padding: 5px 20px;
+                font-size: 12px;
+                color: #0f0;
+                background: #111;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Entity Lifecycle Test — add, remove, kill, live=false</h1>
+        <div id="controls">
+            <button id="addBox">Add Box</button>
+            <button id="add10">Add 10 Boxes</button>
+            <button id="addMortal">Add Mortal (dies in 2s)</button>
+            <button id="killAll">Kill All Custom</button>
+            <button id="addClickable">Add Clickable (click to remove)</button>
+        </div>
+        <div id="stats"></div>
+        <canvas id="jestCanvas"></canvas>
+        <script type="module">
+            import { Jest, Sprite } from '../../Jest/Jest.js';
+            import Label from '../../Jest/Label.js';
+
+            Jest.setup({
+                canvas: 'jestCanvas',
+                width: 1920,
+                height: 1080,
+                frameRate: Math.ceil(1000 / 60),
+                showFrameRate: true
+            });
+
+            const stats = document.getElementById('stats');
+            const customEntities = [];
+            let addedCount = 0;
+            let removedCount = 0;
+            let killCount = 0;
+
+            // Listen for entity events
+            Jest.eventBus.on('entityAdded', () => { addedCount++; });
+            Jest.eventBus.on('entityRemoved', () => { removedCount++; });
+
+            function makeBox(options = {}) {
+                const x = options.x || Math.random() * 1800 + 60;
+                const y = options.y || Math.random() * 900 + 60;
+                const entity = new Sprite({
+                    x, y,
+                    width: options.size || 30 + Math.random() * 40,
+                    height: options.size || 30 + Math.random() * 40,
+                    color: {
+                        r: Math.floor(Math.random() * 255),
+                        g: Math.floor(Math.random() * 255),
+                        b: Math.floor(Math.random() * 255)
+                    }
+                });
+                entity.speed = 50 + Math.random() * 100;
+                entity.dir = Math.random() * Math.PI * 2;
+                entity.clickable = options.clickable || false;
+                entity.customEntity = true;
+
+                const origUpdate = entity.update.bind(entity);
+                entity.update = function update(dt) {
+                    origUpdate(dt);
+                    this.pos.x += Math.cos(this.dir) * this.speed * dt * Jest.jestScale;
+                    this.pos.y += Math.sin(this.dir) * this.speed * dt * Jest.jestScale;
+
+                    // Bounce off bounds
+                    if (this.pos.x < 0 || this.pos.x > Jest.bounds.width) {
+                        this.dir = Math.PI - this.dir;
+                    }
+                    if (this.pos.y < 0 || this.pos.y > Jest.bounds.height) {
+                        this.dir = -this.dir;
+                    }
+                };
+
+                if (options.clickable) {
+                    entity.clicked = function clicked() {
+                        this.live = false;
+                        killCount++;
+                    };
+                }
+
+                customEntities.push(entity);
+                return entity;
+            }
+
+            document.getElementById('addBox').addEventListener('click', () => {
+                Jest.addEntity(makeBox());
+            });
+
+            document.getElementById('add10').addEventListener('click', () => {
+                for (let i = 0; i < 10; i++) {
+                    Jest.addEntity(makeBox());
+                }
+            });
+
+            document.getElementById('addMortal').addEventListener('click', () => {
+                const box = makeBox({ size: 50 });
+                box.color = { r: 255, g: 50, b: 50 };
+                box.mortalTime = 2000;
+                box.birthTime = Date.now();
+
+                const origUpdate2 = box.update.bind(box);
+                box.update = function update(dt) {
+                    origUpdate2(dt);
+                    const age = Date.now() - this.birthTime;
+                    this.alpha = Math.max(0, 1 - age / this.mortalTime);
+                    if (age > this.mortalTime) {
+                        this.live = false;
+                    }
+                };
+
+                box.kill = function kill() {
+                    killCount++;
+                    const idx = customEntities.indexOf(this);
+                    if (idx !== -1) customEntities.splice(idx, 1);
+                };
+
+                Jest.addEntity(box);
+            });
+
+            document.getElementById('killAll').addEventListener('click', () => {
+                const toKill = [...customEntities];
+                toKill.forEach(e => {
+                    e.live = false;
+                });
+                customEntities.length = 0;
+            });
+
+            document.getElementById('addClickable').addEventListener('click', () => {
+                const box = makeBox({ clickable: true, size: 60 });
+                box.color = { r: 50, g: 200, b: 255 };
+                Jest.addEntity(box);
+            });
+
+            Jest.setupGame = function setupGame() {
+                const infoLabel = new Label({
+                    text: 'Add entities using the buttons above',
+                    x: 20,
+                    y: 50,
+                    font: '16pt Arial',
+                    color: '#666'
+                });
+                Jest.addEntity(infoLabel);
+
+                const updateStats = () => {
+                    stats.textContent = `Entities: ${Jest.entities.length} | Custom: ${customEntities.length} | Added: ${addedCount} | Removed: ${removedCount} | Kill callbacks: ${killCount}`;
+                    requestAnimationFrame(updateStats);
+                };
+                updateStats();
+
+                this.update();
+            };
+
+            window.onload = () => Jest.load();
+        </script>
+    </body>
+</html>

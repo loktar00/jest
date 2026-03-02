@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Particle System Test</title>
+        <style>
+            * { margin: 0; padding: 0; }
+            body {
+                font-family: monospace;
+                background: #1a1a2e;
+                color: #e0e0e0;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+            }
+            h1 { color: #0ff; padding: 10px 20px; font-size: 16px; }
+            canvas {
+                display: block;
+                background: #000;
+                image-rendering: crisp-edges;
+            }
+            #controls {
+                padding: 10px 20px;
+                background: #111;
+            }
+            button {
+                background: #333;
+                color: #fff;
+                border: 1px solid #555;
+                padding: 6px 14px;
+                margin: 3px;
+                cursor: pointer;
+                font-family: monospace;
+                font-size: 12px;
+            }
+            button:hover { background: #555; }
+            #stats {
+                padding: 5px 20px;
+                font-size: 12px;
+                color: #0f0;
+                background: #111;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Particle System Test — emitters, one-shot, continuous, color/size/alpha transitions</h1>
+        <div id="controls">
+            <button id="fireOneShot">Fire One-Shot (50 particles)</button>
+            <button id="startContinuous">Start Continuous</button>
+            <button id="stopContinuous">Stop Continuous</button>
+            <button id="fireColorFade">Fire Color Fade (red→blue)</button>
+            <button id="fireSizeChange">Fire Size Change (big→small)</button>
+            <button id="fireAlphaFade">Fire Alpha Fade (1→0)</button>
+            <button id="fireAdditive">Fire Additive Blend</button>
+        </div>
+        <div id="stats"></div>
+        <canvas id="jestCanvas"></canvas>
+        <script type="module">
+            import { Jest } from '../../Jest/Jest.js';
+            import Emitter from '../../Jest/Emitter.js';
+
+            Jest.setup({
+                canvas: 'jestCanvas',
+                width: 1920,
+                height: 1080,
+                frameRate: Math.ceil(1000 / 60),
+                showFrameRate: true,
+                showParticleCount: true
+            });
+
+            const stats = document.getElementById('stats');
+            let emitter = null;
+            let continuousGroup = null;
+
+            Jest.setupGame = function setupGame() {
+                emitter = new Emitter({
+                    pos: { x: 960, y: 540 },
+                    width: 1920,
+                    height: 1080
+                });
+
+                const updateStats = () => {
+                    stats.textContent = `Particles: ${Jest.particleCount} | Pool: ${emitter.pool.length} | Groups: ${emitter.particleGroups.length} | FPS: ${Jest.currentFrameRate}`;
+                    requestAnimationFrame(updateStats);
+                };
+                updateStats();
+
+                this.update();
+            };
+
+            // One-shot burst
+            document.getElementById('fireOneShot').addEventListener('click', () => {
+                emitter.addGroup({
+                    name: 'oneshot',
+                    rate: 50,
+                    oneShot: true,
+                    lifeTime: 1500,
+                    startSize: 4,
+                    endSize: 1,
+                    thrust: 5,
+                    thrustRange: { min: 2, max: 8 },
+                    angleRange: { min: 0, max: 360 },
+                    startColor: { r: 255, g: 200, b: 50 },
+                    endColor: { r: 255, g: 80, b: 0 },
+                    startAlpha: 1,
+                    endAlpha: 0
+                });
+            });
+
+            // Continuous stream
+            continuousGroup = {
+                name: 'continuous',
+                rate: 30,
+                duration: Infinity,
+                lifeTime: 2000,
+                startSize: 3,
+                endSize: 1,
+                thrust: 3,
+                thrustRange: { min: 1, max: 5 },
+                angleRange: { min: 250, max: 290 },
+                gravity: -0.0003,
+                startColor: { r: 100, g: 200, b: 255 },
+                endColor: { r: 50, g: 100, b: 200 },
+                startAlpha: 0.8,
+                endAlpha: 0
+            };
+
+            document.getElementById('startContinuous').addEventListener('click', () => {
+                if (!emitter.getGroup('continuous')) {
+                    emitter.addGroup(continuousGroup);
+                } else {
+                    emitter.startGroup('continuous');
+                }
+            });
+
+            document.getElementById('stopContinuous').addEventListener('click', () => {
+                emitter.removeGroup('continuous');
+            });
+
+            // Color fade: red to blue
+            document.getElementById('fireColorFade').addEventListener('click', () => {
+                emitter.addGroup({
+                    name: 'colorfade',
+                    rate: 40,
+                    oneShot: true,
+                    lifeTime: 2000,
+                    startSize: 6,
+                    endSize: 3,
+                    thrust: 4,
+                    thrustRange: { min: 2, max: 6 },
+                    angleRange: { min: 0, max: 360 },
+                    startColor: { r: 255, g: 30, b: 30 },
+                    endColor: { r: 30, g: 30, b: 255 },
+                    startAlpha: 1,
+                    endAlpha: 0.3
+                });
+            });
+
+            // Size change: big to small
+            document.getElementById('fireSizeChange').addEventListener('click', () => {
+                emitter.addGroup({
+                    name: 'sizechange',
+                    rate: 30,
+                    oneShot: true,
+                    lifeTime: 1800,
+                    startSize: 20,
+                    endSize: 1,
+                    thrust: 3,
+                    thrustRange: { min: 1, max: 5 },
+                    angleRange: { min: 0, max: 360 },
+                    startColor: { r: 50, g: 255, b: 50 },
+                    endColor: { r: 50, g: 255, b: 50 },
+                    startAlpha: 1,
+                    endAlpha: 0.5
+                });
+            });
+
+            // Alpha fade: fully visible to invisible
+            document.getElementById('fireAlphaFade').addEventListener('click', () => {
+                emitter.addGroup({
+                    name: 'alphafade',
+                    rate: 40,
+                    oneShot: true,
+                    lifeTime: 2500,
+                    startSize: 8,
+                    endSize: 8,
+                    thrust: 2,
+                    thrustRange: { min: 1, max: 4 },
+                    angleRange: { min: 0, max: 360 },
+                    startColor: { r: 255, g: 255, b: 255 },
+                    endColor: { r: 255, g: 255, b: 255 },
+                    startAlpha: 1,
+                    endAlpha: 0
+                });
+            });
+
+            // Additive blending (glow effect)
+            document.getElementById('fireAdditive').addEventListener('click', () => {
+                emitter.addGroup({
+                    name: 'additive',
+                    rate: 60,
+                    oneShot: true,
+                    lifeTime: 1200,
+                    startSize: 10,
+                    endSize: 2,
+                    thrust: 6,
+                    thrustRange: { min: 3, max: 8 },
+                    angleRange: { min: 0, max: 360 },
+                    startColor: { r: 100, g: 150, b: 255 },
+                    endColor: { r: 255, g: 100, b: 200 },
+                    startAlpha: 0.8,
+                    endAlpha: 0,
+                    blend: true
+                });
+            });
+
+            window.onload = () => Jest.load();
+        </script>
+    </body>
+</html>

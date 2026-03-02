@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Input Test</title>
+        <style>
+            * { margin: 0; padding: 0; }
+            body {
+                font-family: monospace;
+                background: #1a1a2e;
+                color: #e0e0e0;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+            }
+            h1 { color: #0ff; padding: 10px 20px; font-size: 16px; }
+            .container { display: flex; flex: 1; }
+            canvas {
+                display: block;
+                background: #000;
+                image-rendering: crisp-edges;
+            }
+            #info {
+                width: 350px;
+                padding: 10px 20px;
+                font-size: 13px;
+                line-height: 1.6;
+                overflow-y: auto;
+                background: #111;
+                white-space: pre;
+            }
+            .label { color: #888; }
+            .value { color: #0f0; }
+            .active { color: #ff0; }
+            #eventLog {
+                max-height: 200px;
+                overflow-y: auto;
+                border-top: 1px solid #333;
+                margin-top: 10px;
+                padding-top: 10px;
+                font-size: 11px;
+                color: #666;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Input Test — click canvas first to focus, then use keyboard/mouse</h1>
+        <div class="container">
+            <canvas id="jestCanvas"></canvas>
+            <div id="info"></div>
+        </div>
+        <script type="module">
+            import { Jest } from '../../Jest/Jest.js';
+
+            Jest.setup({
+                canvas: 'jestCanvas',
+                width: 1920,
+                height: 1080,
+                frameRate: Math.ceil(1000 / 60),
+                showFrameRate: true
+            });
+
+            const info = document.getElementById('info');
+            const keysDown = new Set();
+            const eventLog = [];
+
+            // Track events through the EventBus
+            Jest.eventBus.on('input:keydown', (e) => {
+                keysDown.add(e.key);
+                eventLog.unshift(`keydown: ${e.key} (code: ${e.keyCode})`);
+                if (eventLog.length > 20) eventLog.pop();
+            });
+
+            Jest.eventBus.on('input:keyup', (e) => {
+                keysDown.delete(e.key);
+                eventLog.unshift(`keyup: ${e.key}`);
+                if (eventLog.length > 20) eventLog.pop();
+            });
+
+            Jest.eventBus.on('input:click', () => {
+                eventLog.unshift(`click at (${Math.round(Jest.mouseX)}, ${Math.round(Jest.mouseY)})`);
+                if (eventLog.length > 20) eventLog.pop();
+            });
+
+            Jest.eventBus.on('input:mousedown', () => {
+                eventLog.unshift(`mousedown L:${Jest.leftDown} R:${Jest.rightDown} M:${Jest.midDown}`);
+                if (eventLog.length > 20) eventLog.pop();
+            });
+
+            Jest.eventBus.on('input:mousewheel', (dir) => {
+                eventLog.unshift(`mousewheel dir: ${dir}`);
+                if (eventLog.length > 20) eventLog.pop();
+            });
+
+            // Crosshair entity
+            const crosshair = {
+                pos: { x: 0, y: 0, z: 100 },
+                width: 0,
+                height: 0,
+                visible: true,
+                live: true,
+                origin: { x: 0, y: 0 },
+                update() {
+                    this.pos.x = Jest.mouseX * Jest.jestScale;
+                    this.pos.y = Jest.mouseY * Jest.jestScale;
+                },
+                render(ctx) {
+                    ctx.strokeStyle = '#0f0';
+                    ctx.lineWidth = 1;
+                    const x = this.pos.x;
+                    const y = this.pos.y;
+                    // Crosshair
+                    ctx.beginPath();
+                    ctx.moveTo(x - 20, y);
+                    ctx.lineTo(x + 20, y);
+                    ctx.moveTo(x, y - 20);
+                    ctx.lineTo(x, y + 20);
+                    ctx.stroke();
+                    // Circle
+                    ctx.beginPath();
+                    ctx.arc(x, y, 10, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            };
+
+            // WASD indicator
+            const wasdDisplay = {
+                pos: { x: 0, y: 0, z: 50 },
+                visible: true,
+                live: true,
+                width: 0,
+                height: 0,
+                origin: { x: 0, y: 0 },
+                update() {},
+                render(ctx) {
+                    const s = Jest.jestScale;
+                    const bx = 100 * s;
+                    const by = Jest.bounds.height - 200 * s;
+                    const size = 40 * s;
+                    const gap = 5 * s;
+
+                    const keys = [
+                        { key: 87, label: 'W', ox: size + gap, oy: 0 },
+                        { key: 65, label: 'A', ox: 0, oy: size + gap },
+                        { key: 83, label: 'S', ox: size + gap, oy: size + gap },
+                        { key: 68, label: 'D', ox: (size + gap) * 2, oy: size + gap }
+                    ];
+
+                    keys.forEach(k => {
+                        const pressed = Jest.keys[k.key];
+                        ctx.fillStyle = pressed ? 'rgba(0,255,0,0.8)' : 'rgba(80,80,80,0.5)';
+                        ctx.fillRect(bx + k.ox, by + k.oy, size, size);
+                        ctx.fillStyle = '#fff';
+                        ctx.font = `${14 * s}px monospace`;
+                        ctx.fillText(k.label, bx + k.ox + size * 0.3, by + k.oy + size * 0.65);
+                    });
+
+                    // Arrow keys
+                    const ax = 350 * s;
+                    const arrows = [
+                        { key: 38, label: '↑', ox: size + gap, oy: 0 },
+                        { key: 37, label: '←', ox: 0, oy: size + gap },
+                        { key: 40, label: '↓', ox: size + gap, oy: size + gap },
+                        { key: 39, label: '→', ox: (size + gap) * 2, oy: size + gap }
+                    ];
+
+                    arrows.forEach(k => {
+                        const pressed = Jest.keys[k.key];
+                        ctx.fillStyle = pressed ? 'rgba(255,255,0,0.8)' : 'rgba(80,80,80,0.5)';
+                        ctx.fillRect(ax + k.ox, by + k.oy, size, size);
+                        ctx.fillStyle = '#fff';
+                        ctx.font = `${14 * s}px monospace`;
+                        ctx.fillText(k.label, ax + k.ox + size * 0.3, by + k.oy + size * 0.65);
+                    });
+                }
+            };
+
+            // Mouse button display
+            const mouseDisplay = {
+                pos: { x: 0, y: 0, z: 50 },
+                visible: true,
+                live: true,
+                width: 0,
+                height: 0,
+                origin: { x: 0, y: 0 },
+                update() {},
+                render(ctx) {
+                    const s = Jest.jestScale;
+                    const bx = 700 * s;
+                    const by = Jest.bounds.height - 200 * s;
+                    const w = 50 * s;
+                    const h = 70 * s;
+
+                    const buttons = [
+                        { label: 'L', active: Jest.leftDown },
+                        { label: 'M', active: Jest.midDown },
+                        { label: 'R', active: Jest.rightDown }
+                    ];
+
+                    buttons.forEach((b, i) => {
+                        ctx.fillStyle = b.active ? 'rgba(255,100,100,0.8)' : 'rgba(80,80,80,0.5)';
+                        ctx.fillRect(bx + i * (w + 5 * s), by, w, h);
+                        ctx.fillStyle = '#fff';
+                        ctx.font = `${14 * s}px monospace`;
+                        ctx.fillText(b.label, bx + i * (w + 5 * s) + w * 0.35, by + h * 0.55);
+                    });
+                }
+            };
+
+            Jest.setupGame = function setupGame() {
+                Jest.addEntity(crosshair);
+                Jest.addEntity(wasdDisplay);
+                Jest.addEntity(mouseDisplay);
+
+                // Info panel update
+                const updateInfo = () => {
+                    const lines = [
+                        '<span class="label">── Mouse ──</span>',
+                        `  Raw: <span class="value">${Math.round(Jest.mouseX)}, ${Math.round(Jest.mouseY)}</span>`,
+                        `  Left: <span class="${Jest.leftDown ? 'active' : 'value'}">${Jest.leftDown}</span>`,
+                        `  Right: <span class="${Jest.rightDown ? 'active' : 'value'}">${Jest.rightDown}</span>`,
+                        `  Mid: <span class="${Jest.midDown ? 'active' : 'value'}">${Jest.midDown}</span>`,
+                        '',
+                        '<span class="label">── Keyboard ──</span>',
+                        `  Active: <span class="active">${[...keysDown].join(', ') || '(none)'}</span>`,
+                        '',
+                        '<span class="label">── State ──</span>',
+                        `  Focused: <span class="${Jest.focused ? 'active' : 'value'}">${Jest.focused}</span>`,
+                        `  Scale: <span class="value">${Jest.jestScale.toFixed(3)}</span>`,
+                        `  FPS: <span class="value">${Jest.currentFrameRate}</span>`,
+                        `  Gamepads: <span class="value">${Jest.gamePads.length}</span>`,
+                        `  Entities: <span class="value">${Jest.entities.length}</span>`,
+                        '',
+                        '<span class="label">── Event Log ──</span>',
+                        ...eventLog.map(e => `  <span style="color:#555">${e}</span>`)
+                    ];
+                    info.innerHTML = lines.join('\n');
+                    requestAnimationFrame(updateInfo);
+                };
+                updateInfo();
+
+                this.update();
+            };
+
+            window.onload = () => Jest.load();
+        </script>
+    </body>
+</html>

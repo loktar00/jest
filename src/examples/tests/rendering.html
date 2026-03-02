@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Renderer Test</title>
+        <style>
+            * { margin: 0; padding: 0; }
+            body {
+                font-family: monospace;
+                background: #1a1a2e;
+                color: #e0e0e0;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+            }
+            h1 { color: #0ff; padding: 10px 20px; font-size: 16px; }
+            canvas {
+                display: block;
+                background: #000;
+                image-rendering: crisp-edges;
+            }
+            #controls {
+                padding: 10px 20px;
+                background: #111;
+            }
+            button {
+                background: #333;
+                color: #fff;
+                border: 1px solid #555;
+                padding: 6px 14px;
+                margin: 3px;
+                cursor: pointer;
+                font-family: monospace;
+                font-size: 12px;
+            }
+            button:hover { background: #555; }
+            #stats {
+                padding: 5px 20px;
+                font-size: 12px;
+                color: #0f0;
+                background: #111;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Renderer Test — z-order, bg/ui layers, sortDirty, visibility toggle</h1>
+        <div id="controls">
+            <button id="shuffleZ">Shuffle Z-Order</button>
+            <button id="toggleVis">Toggle Visibility (green)</button>
+            <button id="addBg">Add Background Layer</button>
+            <button id="addUi">Add UI Layer</button>
+            <button id="triggerSort">Trigger Sort (markDirty)</button>
+        </div>
+        <div id="stats"></div>
+        <canvas id="jestCanvas"></canvas>
+        <script type="module">
+            import { Jest, Sprite } from '../../Jest/Jest.js';
+            import Label from '../../Jest/Label.js';
+
+            Jest.setup({
+                canvas: 'jestCanvas',
+                width: 1920,
+                height: 1080,
+                frameRate: Math.ceil(1000 / 60),
+                showFrameRate: true
+            });
+
+            const stats = document.getElementById('stats');
+            const normalEntities = [];
+            const bgEntities = [];
+            const uiEntities = [];
+            let greenVisible = true;
+            let sortCount = 0;
+
+            // Monkey-patch renderer to count sorts
+            const origRedraw = null;
+
+            Jest.setupGame = function setupGame() {
+                // Create entities at different z-orders with labels
+                const zLevels = [
+                    { z: 10, color: { r: 255, g: 60, b: 60 }, label: 'z=10 (front)' },
+                    { z: 5, color: { r: 60, g: 255, b: 60 }, label: 'z=5 (mid)' },
+                    { z: 1, color: { r: 60, g: 100, b: 255 }, label: 'z=1 (back)' },
+                    { z: 8, color: { r: 255, g: 200, b: 50 }, label: 'z=8' },
+                    { z: 3, color: { r: 200, g: 50, b: 255 }, label: 'z=3' }
+                ];
+
+                zLevels.forEach((def, i) => {
+                    const entity = new Sprite({
+                        x: 300 + i * 250,
+                        y: 350,
+                        width: 200,
+                        height: 200,
+                        color: def.color
+                    });
+                    entity.pos.z = def.z;
+                    entity.zLabel = def.label;
+                    entity.colorDef = def.color;
+                    normalEntities.push(entity);
+                    Jest.addEntity(entity);
+
+                    // Label below entity
+                    const lbl = new Label({
+                        text: def.label,
+                        x: 300 + i * 250,
+                        y: 580,
+                        font: '12pt Arial',
+                        color: `rgb(${def.color.r},${def.color.g},${def.color.b})`
+                    });
+                    lbl.pos.z = 100; // Always on top
+                    Jest.addEntity(lbl);
+                });
+
+                // Overlap region — three overlapping boxes to clearly show z-order
+                const overlapX = 800;
+                const overlapY = 100;
+
+                const back = new Sprite({
+                    x: overlapX,
+                    y: overlapY,
+                    width: 150,
+                    height: 150,
+                    color: { r: 255, g: 0, b: 0 }
+                });
+                back.pos.z = 1;
+                Jest.addEntity(back);
+
+                const mid = new Sprite({
+                    x: overlapX + 40,
+                    y: overlapY + 40,
+                    width: 150,
+                    height: 150,
+                    color: { r: 0, g: 255, b: 0 }
+                });
+                mid.pos.z = 5;
+                mid.isGreen = true;
+                normalEntities.push(mid);
+                Jest.addEntity(mid);
+
+                const front = new Sprite({
+                    x: overlapX + 80,
+                    y: overlapY + 80,
+                    width: 150,
+                    height: 150,
+                    color: { r: 0, g: 100, b: 255 }
+                });
+                front.pos.z = 10;
+                Jest.addEntity(front);
+
+                const overlapLabel = new Label({
+                    text: 'Overlap test: Red(z1) < Green(z5) < Blue(z10)',
+                    x: overlapX - 50,
+                    y: overlapY - 20,
+                    font: '12pt Arial',
+                    color: '#888'
+                });
+                overlapLabel.pos.z = 100;
+                Jest.addEntity(overlapLabel);
+
+                // Stats update
+                const updateStats = () => {
+                    const renderer = Jest.renderer;
+                    const renderCount = renderer.renderList.length;
+                    const visibleCount = renderer.renderList.filter(e => e.visible).length;
+                    stats.textContent = `RenderList: ${renderCount} | Visible: ${visibleCount} | BG: ${bgEntities.length} | UI: ${uiEntities.length} | sortDirty: ${renderer.sortDirty}`;
+                    requestAnimationFrame(updateStats);
+                };
+                updateStats();
+
+                this.update();
+            };
+
+            // Shuffle z-orders randomly
+            document.getElementById('shuffleZ').addEventListener('click', () => {
+                normalEntities.forEach(e => {
+                    e.pos.z = Math.floor(Math.random() * 20);
+                    if (e.zLabel) {
+                        e.zLabel = `z=${e.pos.z}`;
+                    }
+                });
+                Jest.renderer.markDirty();
+            });
+
+            // Toggle visibility of green entities
+            document.getElementById('toggleVis').addEventListener('click', () => {
+                greenVisible = !greenVisible;
+                normalEntities.forEach(e => {
+                    if (e.isGreen || (e.colorDef && e.colorDef.g === 255 && e.colorDef.r === 60)) {
+                        e.visible = greenVisible;
+                    }
+                });
+            });
+
+            // Add background layer entity
+            document.getElementById('addBg').addEventListener('click', () => {
+                const bg = {
+                    pos: { x: 0, y: 0, z: 0 },
+                    width: 0,
+                    height: 0,
+                    visible: true,
+                    live: true,
+                    bg: true,
+                    bgIndex: bgEntities.length,
+                    origin: { x: 0, y: 0 },
+                    update() {},
+                    render(ctx) {
+                        const s = Jest.jestScale;
+                        const hue = (this.bgIndex * 60) % 360;
+                        ctx.fillStyle = `hsla(${hue}, 50%, 15%, 0.3)`;
+                        ctx.fillRect(0, this.bgIndex * 50 * s, Jest.bounds.width, 50 * s);
+                        ctx.fillStyle = '#666';
+                        ctx.font = `${12 * s}px monospace`;
+                        ctx.fillText(`BG layer ${this.bgIndex}`, 10 * s, (this.bgIndex * 50 + 30) * s);
+                    }
+                };
+                bgEntities.push(bg);
+                Jest.addEntity(bg);
+            });
+
+            // Add UI layer entity
+            document.getElementById('addUi').addEventListener('click', () => {
+                const ui = {
+                    pos: { x: 0, y: 0, z: 0 },
+                    width: 0,
+                    height: 0,
+                    visible: true,
+                    live: true,
+                    ui: true,
+                    uiIndex: uiEntities.length,
+                    origin: { x: 0, y: 0 },
+                    update() {},
+                    render(ctx) {
+                        const s = Jest.jestScale;
+                        const hue = (this.uiIndex * 90 + 180) % 360;
+                        ctx.fillStyle = `hsla(${hue}, 80%, 50%, 0.8)`;
+                        const yPos = Jest.bounds.height - (this.uiIndex + 1) * 40 * s;
+                        ctx.fillRect(Jest.bounds.width - 300 * s, yPos, 290 * s, 35 * s);
+                        ctx.fillStyle = '#fff';
+                        ctx.font = `${12 * s}px monospace`;
+                        ctx.fillText(`UI layer ${this.uiIndex}`, Jest.bounds.width - 290 * s, yPos + 22 * s);
+                    }
+                };
+                uiEntities.push(ui);
+                Jest.addEntity(ui);
+            });
+
+            // Manually trigger sort
+            document.getElementById('triggerSort').addEventListener('click', () => {
+                Jest.renderer.markDirty();
+                sortCount++;
+            });
+
+            window.onload = () => Jest.load();
+        </script>
+    </body>
+</html>

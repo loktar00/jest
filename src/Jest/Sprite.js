@@ -1,13 +1,16 @@
 import Vector from './Vector.js';
 
 export default class Sprite {
-    constructor(options = {}) {
-        this.initialize(options);
+    constructor(options = {}, context = null) {
+        this.initialize(options, context);
     }
 
-    initialize(options) {
-        this.width = (options.width || 32) * Jest.jestScale;
-        this.height = (options.height || 32) * Jest.jestScale;
+    initialize(options, context) {
+        this.ctx = context || Jest;
+        const scale = this.ctx.jestScale;
+
+        this.width = (options.width || 32) * scale;
+        this.height = (options.height || 32) * scale;
 
         // Set the position
         this.pos = options.pos || {
@@ -18,9 +21,9 @@ export default class Sprite {
 
         if (options.x && options.y) {
             this.pos = new Vector(
-                (options?.x || 0) * Jest.jestScale,
-                (options?.y || 0) * Jest.jestScale,
-                options.pos?.z || 0 // Assuming z-scale is not required, else apply Jest.jestScale
+                (options?.x || 0) * this.ctx.jestScale,
+                (options?.y || 0) * this.ctx.jestScale,
+                options.pos?.z || 0 // Assuming z-scale is not required, else apply this.ctx.jestScale
             );
         } else if (options.pos) {
             this.pos = options.pos;
@@ -31,9 +34,9 @@ export default class Sprite {
         // Set drawing origin
         // Apply scale to origin
         this.origin = new Vector(
-            (options.origin?.x || 0) * Jest.jestScale,
-            (options.origin?.y || 0) * Jest.jestScale,
-            options.origin?.z || 0 // Assuming z-scale is not required, else apply Jest.jestScale
+            (options.origin?.x || 0) * this.ctx.jestScale,
+            (options.origin?.y || 0) * this.ctx.jestScale,
+            options.origin?.z || 0 // Assuming z-scale is not required, else apply this.ctx.jestScale
         );
 
         if (options.ox && options.oy) {
@@ -61,8 +64,8 @@ export default class Sprite {
         }
 
         // Apply scale to startX and startY if needed
-        this.startX = (options.startX || 0) * Jest.jestScale;
-        this.startY = (options.startY || 0) * Jest.jestScale;
+        this.startX = (options.startX || 0) * this.ctx.jestScale;
+        this.startY = (options.startY || 0) * this.ctx.jestScale;
 
         this.tileable = options.tileable || false;
         if (this.tileable) {
@@ -202,8 +205,8 @@ export default class Sprite {
             const cY = (0.5 + (this.pos.y - this.origin.y)) << 0;
 
             // Scale the image dimensions
-            const scaledWidth = this.width * Jest.jestScale;
-            const scaledHeight = this.height * Jest.jestScale;
+            const scaledWidth = this.width * this.ctx.jestScale;
+            const scaledHeight = this.height * this.ctx.jestScale;
 
             context.drawImage(
                 this.resource.source,
@@ -220,10 +223,10 @@ export default class Sprite {
             const { color } = this;
             context.fillStyle = `rgba(${color.r},${color.g},${color.b},${this.alpha})`;
             context.fillRect(
-                (this.pos.x - this.origin.x) * Jest.jestScale,
-                (this.pos.y - this.origin.y) * Jest.jestScale,
-                this.width * Jest.jestScale,
-                this.height * Jest.jestScale
+                (this.pos.x - this.origin.x) * this.ctx.jestScale,
+                (this.pos.y - this.origin.y) * this.ctx.jestScale,
+                this.width * this.ctx.jestScale,
+                this.height * this.ctx.jestScale
             );
         }
         context.restore();

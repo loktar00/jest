@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Scaling / Resize Test</title>
+        <style>
+            * { margin: 0; padding: 0; }
+            body {
+                font-family: monospace;
+                background: #1a1a2e;
+                color: #e0e0e0;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+            }
+            h1 { color: #0ff; padding: 10px 20px; font-size: 16px; }
+            canvas {
+                display: block;
+                background: #000;
+                image-rendering: crisp-edges;
+            }
+            #info {
+                padding: 10px 20px;
+                font-size: 13px;
+                line-height: 1.6;
+                background: #111;
+                white-space: pre;
+            }
+            .label { color: #888; }
+            .value { color: #0f0; }
+        </style>
+    </head>
+    <body>
+        <h1>Scaling / Resize Test — resize the browser window to test jestScale</h1>
+        <div id="info"></div>
+        <canvas id="jestCanvas"></canvas>
+        <script type="module">
+            import { Jest, Sprite } from '../../Jest/Jest.js';
+            import Label from '../../Jest/Label.js';
+
+            Jest.setup({
+                canvas: 'jestCanvas',
+                width: 1920,
+                height: 1080,
+                frameRate: Math.ceil(1000 / 60),
+                showFrameRate: true
+            });
+
+            const info = document.getElementById('info');
+            let resizeCount = 0;
+
+            Jest.eventBus.on('resize', () => {
+                resizeCount++;
+            });
+
+            Jest.setupGame = function setupGame() {
+                // Corner markers — should always be at the corners of the canvas
+                const cornerSize = 50;
+                const corners = [
+                    { x: 0, y: 0, label: 'TL (0,0)' },
+                    { x: 1920 - cornerSize, y: 0, label: 'TR' },
+                    { x: 0, y: 1080 - cornerSize, label: 'BL' },
+                    { x: 1920 - cornerSize, y: 1080 - cornerSize, label: 'BR' }
+                ];
+
+                corners.forEach(c => {
+                    const marker = new Sprite({
+                        x: c.x,
+                        y: c.y,
+                        width: cornerSize,
+                        height: cornerSize,
+                        color: { r: 255, g: 0, b: 255 }
+                    });
+                    marker.pos.z = 50;
+                    Jest.addEntity(marker);
+                });
+
+                // Center crosshair — should always be at exact center
+                const centerCross = {
+                    pos: { x: 0, y: 0, z: 40 },
+                    width: 0,
+                    height: 0,
+                    visible: true,
+                    live: true,
+                    origin: { x: 0, y: 0 },
+                    update() {},
+                    render(ctx) {
+                        const s = Jest.jestScale;
+                        const cx = 960 * s;
+                        const cy = 540 * s;
+                        ctx.strokeStyle = '#0ff';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(cx - 40 * s, cy);
+                        ctx.lineTo(cx + 40 * s, cy);
+                        ctx.moveTo(cx, cy - 40 * s);
+                        ctx.lineTo(cx, cy + 40 * s);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, 20 * s, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                };
+                Jest.addEntity(centerCross);
+
+                // Grid lines at 25% intervals to verify proportional scaling
+                const grid = {
+                    pos: { x: 0, y: 0, z: 0 },
+                    width: 0,
+                    height: 0,
+                    visible: true,
+                    live: true,
+                    origin: { x: 0, y: 0 },
+                    update() {},
+                    render(ctx) {
+                        const s = Jest.jestScale;
+                        ctx.strokeStyle = 'rgba(100,100,100,0.3)';
+                        ctx.lineWidth = 1;
+                        // Vertical lines at 25%, 50%, 75%
+                        [0.25, 0.5, 0.75].forEach(pct => {
+                            const x = 1920 * pct * s;
+                            ctx.beginPath();
+                            ctx.moveTo(x, 0);
+                            ctx.lineTo(x, 1080 * s);
+                            ctx.stroke();
+                        });
+                        // Horizontal lines at 25%, 50%, 75%
+                        [0.25, 0.5, 0.75].forEach(pct => {
+                            const y = 1080 * pct * s;
+                            ctx.beginPath();
+                            ctx.moveTo(0, y);
+                            ctx.lineTo(1920 * s, y);
+                            ctx.stroke();
+                        });
+                        // Grid labels
+                        ctx.fillStyle = '#555';
+                        ctx.font = `${10 * s}px monospace`;
+                        [0, 0.25, 0.5, 0.75, 1].forEach(pct => {
+                            ctx.fillText(`${Math.round(1920 * pct)}`, 1920 * pct * s + 2, 12 * s);
+                            ctx.fillText(`${Math.round(1080 * pct)}`, 2, 1080 * pct * s + 12 * s);
+                        });
+                    }
+                };
+                Jest.addEntity(grid);
+
+                // Moving sprite to show scaling affects motion correctly
+                const mover = new Sprite({
+                    x: 960,
+                    y: 540,
+                    width: 40,
+                    height: 40,
+                    color: { r: 0, g: 255, b: 100 }
+                });
+                mover.angle = 0;
+                mover.radius = 200;
+                mover.centerX = 960;
+                mover.centerY = 540;
+                mover.pos.z = 30;
+
+                const origUpdate = mover.update.bind(mover);
+                mover.update = function update(dt) {
+                    origUpdate(dt);
+                    this.angle += dt * 0.001;
+                    const s = Jest.jestScale;
+                    this.pos.x = (this.centerX + Math.cos(this.angle) * this.radius) * s;
+                    this.pos.y = (this.centerY + Math.sin(this.angle) * this.radius) * s;
+                };
+                Jest.addEntity(mover);
+
+                // Mouse position indicator to verify coordinate transforms
+                const mouseDot = {
+                    pos: { x: 0, y: 0, z: 100 },
+                    width: 0,
+                    height: 0,
+                    visible: true,
+                    live: true,
+                    origin: { x: 0, y: 0 },
+                    update() {
+                        this.pos.x = Jest.mouseX * Jest.jestScale;
+                        this.pos.y = Jest.mouseY * Jest.jestScale;
+                    },
+                    render(ctx) {
+                        const s = Jest.jestScale;
+                        ctx.fillStyle = 'rgba(255,255,0,0.8)';
+                        ctx.beginPath();
+                        ctx.arc(this.pos.x, this.pos.y, 5 * s, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#ff0';
+                        ctx.font = `${10 * s}px monospace`;
+                        ctx.fillText(
+                            `(${Math.round(Jest.mouseX)}, ${Math.round(Jest.mouseY)})`,
+                            this.pos.x + 10 * s,
+                            this.pos.y - 5 * s
+                        );
+                    }
+                };
+                Jest.addEntity(mouseDot);
+
+                // Info panel update
+                const updateInfo = () => {
+                    const canvas = Jest.renderCanvas;
+                    const lines = [
+                        `<span class="label">Design res:</span>  <span class="value">1920 x 1080</span>`,
+                        `<span class="label">Canvas CSS:</span>  <span class="value">${canvas.style.width} x ${canvas.style.height}</span>`,
+                        `<span class="label">Canvas px:</span>   <span class="value">${canvas.width} x ${canvas.height}</span>`,
+                        `<span class="label">Window:</span>      <span class="value">${window.innerWidth} x ${window.innerHeight}</span>`,
+                        `<span class="label">jestScale:</span>   <span class="value">${Jest.jestScale.toFixed(4)}</span>`,
+                        `<span class="label">Aspect:</span>      <span class="value">${(Jest.width / Jest.height).toFixed(4)} (${Jest.width}/${Jest.height})</span>`,
+                        `<span class="label">Bounds:</span>      <span class="value">${Math.round(Jest.bounds.width)} x ${Math.round(Jest.bounds.height)}</span>`,
+                        `<span class="label">Mouse:</span>       <span class="value">${Math.round(Jest.mouseX)}, ${Math.round(Jest.mouseY)}</span>`,
+                        `<span class="label">Resizes:</span>     <span class="value">${resizeCount}</span>`
+                    ];
+                    info.innerHTML = lines.join('\n');
+                    requestAnimationFrame(updateInfo);
+                };
+                updateInfo();
+
+                this.update();
+            };
+
+            window.onload = () => Jest.load();
+        </script>
+    </body>
+</html>

@@ -1,16 +1,16 @@
 export default class Label {
-    constructor(options = {}) {
+    constructor(options = {}, context = null) {
+        this.ctx = context || Jest;
+
         this.text = options.text || 'Undefined Label Text';
         this.originalFont = options.font || '1rem Arial';
-        this.font = this.originalFont; // Initialize with the original font
+        this.font = this.originalFont;
 
-        this.pos = { x: 0, y: 0 };
-        this.pos.x = options.x || 0;
-        this.pos.y = options.y || 0;
-        // Scale the position
+        const scale = this.ctx.jestScale;
+
         this.pos = {
-            x: (options.pos?.x || options.x || 0) * Jest.jestScale,
-            y: (options.pos?.y || options.y || 0) * Jest.jestScale
+            x: (options.pos?.x || options.x || 0) * scale,
+            y: (options.pos?.y || options.y || 0) * scale
         };
 
         this.color = options.color || '#fff';
@@ -25,7 +25,8 @@ export default class Label {
 
     // Helper function to scale the font size
     scaleFont(font, scale) {
-        const fontSizeRegex = /(\d+(\.\d+)?)(px|pt|em|%|rem|vh|vw|vmin|vmax)/i;
+        const fontSizeRegex =
+            /(\d+(\.\d+)?)(px|pt|em|%|rem|vh|vw|vmin|vmax)/i;
         const match = font.match(fontSizeRegex);
 
         if (match) {
@@ -33,26 +34,19 @@ export default class Label {
             const size = parseFloat(match[1]);
             const unit = match[3];
 
-            // Scale the size
             const scaledSize = size * scale;
-
-            // Replace the original size with the scaled size
             return font.replace(fullMatch, `${scaledSize}${unit}`);
         }
-        return font; // If no match, return the original font
+        return font;
     }
 
-    // The update method remains unchanged
     update() {
-        // Call this in update if the scale can change between renders
-        this.font = this.scaleFont(this.originalFont, Jest.jestScale);
-
-        // // Update positions with the scale
-        this.pos.x = this.originalX * Jest.jestScale;
-        this.pos.y = this.originalY * Jest.jestScale;
+        const scale = this.ctx.jestScale;
+        this.font = this.scaleFont(this.originalFont, scale);
+        this.pos.x = this.originalX * scale;
+        this.pos.y = this.originalY * scale;
     }
 
-    // Draw the label
     render(context) {
         context.fillStyle = this.color;
         context.font = this.font;

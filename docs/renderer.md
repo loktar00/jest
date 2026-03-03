@@ -1,5 +1,3 @@
-
-
 <!-- Start D:\xampp\htdocs\jest\source\renderer.js -->
 
 Renderer.addToRenderer(object)
@@ -11,4 +9,3 @@ Renderer.removeFromRenderer(object)
 remove an item from the renderer
 
 <!-- End D:\xampp\htdocs\jest\source\renderer.js -->
-

@@ -1,10 +1,37 @@
-import Jest from './Index';
-import Renderer from './Renderer';
-import ResourceManager from './ResourceManager';
-import Vector from './Vector';
-import Sprite from './Sprite';
-import Emitter from './Emitter';
-import Particle from './Particle';
-import Label from './Label';
+import Jest from './Index.js';
+import Renderer from './Renderer.js';
+import ResourceManager from './ResourceManager.js';
+import Vector from './Vector.js';
+import Sprite from './Sprite.js';
+import Label from './Label.js';
+import EventBus from './EventBus.js';
+import GameContext from './GameContext.js';
+import InputManager from './InputManager.js';
+import EntityManager from './EntityManager.js';
+import SceneManager from './SceneManager.js';
+import RendererBase from './renderers/RendererBase.js';
+import Canvas2DRenderer from './renderers/Canvas2DRenderer.js';
+import WebGLRenderer from './renderers/WebGLRenderer.js';
+import SpriteBatch from './renderers/SpriteBatch.js';
+import ParticleBatch from './renderers/ParticleBatch.js';
+import createRenderer from './renderers/createRenderer.js';
 
-export {Jest, Renderer, ResourceManager, Vector, Sprite, Emitter, Particle, Label};
+export {
+    Jest,
+    Renderer,
+    ResourceManager,
+    Vector,
+    Sprite,
+    Label,
+    EventBus,
+    GameContext,
+    InputManager,
+    EntityManager,
+    SceneManager,
+    RendererBase,
+    Canvas2DRenderer,
+    WebGLRenderer,
+    SpriteBatch,
+    ParticleBatch,
+    createRenderer
+};

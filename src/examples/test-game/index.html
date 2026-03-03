@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Jest Engine - Test Game</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                background: #111;
+                overflow: hidden;
+            }
+            canvas {
+                display: block;
+                image-rendering: pixelated;
+                image-rendering: crisp-edges;
+            }
+            #status {
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                color: #0f0;
+                font-family: monospace;
+                font-size: 12px;
+                background: rgba(0, 0, 0, 0.7);
+                padding: 10px;
+                border-radius: 4px;
+                white-space: pre;
+                z-index: 100;
+                pointer-events: none;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="jestCanvas"></canvas>
+        <div id="status">Loading...</div>
+        <script src="index.js" type="module"></script>
+    </body>
+</html>

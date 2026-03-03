@@ -1,115 +1,136 @@
-export default class Vector{
-    constructor(x, y, z){
-        this.x = x;
-        this.y = y;
-        this.z = z;
+export default class Vector {
+    constructor(x, y, z) {
+        this.x = x || 0;
+        this.y = y || 0;
+        this.z = z || 0;
+    }
 
-        let copy = function(v){
-            this.x = v.x;
-            this.y = v.y;
-            this.z = v.z;
-        },
-        add = function(v){
-            this.x += v.x;
-            this.y += v.y;
-            this.z += v.z;
-        },
-        sub = function(v){
-            this.x -= v.x;
-            this.y -= v.y;
-            this.z -= v.z;
-        },
-        cross = function(v){
-            this.tx = this.x;
-            this.ty = this.y;
-            this.tz = this.z;
+    copy(v) {
+        this.x = v.x;
+        this.y = v.y;
+        this.z = v.z;
+        return this;
+    }
 
-            this.x = this.ty * v.z - this.tz * v.y;
-            this.y = this.tz * v.x - this.tx * v.z;
-            this.z = this.tx * v.y - this.ty * v.x;
-        },
-        multiply = function(s){
-            this.x *= s;
-            this.y *= s;
-            this.z *= s;
-        },
-        distanceTo = function(v){
-            this.dx = this.x - v.x;
-            this.dy = this.y - v.y;
-            this.dz = this.z - v.z;
+    add(v) {
+        this.x += v.x;
+        this.y += v.y;
+        this.z += v.z;
+        return this;
+    }
 
-            return Math.sqrt(this.dx * this.dx + this.dy * this.dy + this.dz * this.dz);
-        },
-        distanceToSquared = function(v){
-            this.dx = this.x - v.x;
-            this.dy = this.y - v.y;
-            this.dz = this.z - v.z;
+    sub(v) {
+        this.x -= v.x;
+        this.y -= v.y;
+        this.z -= v.z;
+        return this;
+    }
 
-            return this.dx * this.dx + this.dy * this.dy + this.dz * this.dz;
-        },
-        length = function(){
-            return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-        },
-        lengthSq = function(){
-            return this.x * this.x + this.y * this.y + this.z * this.z;
-        },
-        negate = function(){
-            this.x = -this.x;
-            this.y = -this.y;
-            this.z = -this.z;
-        },
-        dot = function(v){
-            return this.x * v.x + this.y * v.y + this.z * v.z;
-        },
-        clone = function(){
-            return new Vector(this.x, this.y, this.z);
-        },
-        toString = function(){
-            return '(' + this.x + ', ' + this.y + ', ' + this.z + ')';
-        }
+    cross(v) {
+        const tx = this.x;
+        const ty = this.y;
+        const tz = this.z;
+
+        this.x = ty * v.z - tz * v.y;
+        this.y = tz * v.x - tx * v.z;
+        this.z = tx * v.y - ty * v.x;
+        return this;
     }
-    add(a, b){
-        return new Vector( a.x + b.x, a.y + b.y, a.z + b.z );
+
+    multiply(s) {
+        this.x *= s;
+        this.y *= s;
+        this.z *= s;
+        return this;
     }
-    sub(a, b){
-        return new Vector( a.x - b.x, a.y - b.y, a.z - b.z );
-    }
-    negate(){
-        this.x = -this.x;
-        this.y = -this.y;
-        this.z = -this.z;
-    }
-    multiply(a, s){
-        return new Vector( a.x * s, a.y * s, a.z * s );
-    }
-    cross(a, b){
-        return new Vector( a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x );
-    }
-    dot(v){
-        return this.x * v.x + this.y * v.y + this.z * v.z;
-    }
-    distance(a, b){
-        var dx = a.x - b.x,
-            dy = a.y - b.y,
-            dz = a.z - b.z;
+
+    distanceTo(v) {
+        const dx = this.x - v.x;
+        const dy = this.y - v.y;
+        const dz = this.z - v.z;
 
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
-    length(){
+
+    distanceToSquared(v) {
+        const dx = this.x - v.x;
+        const dy = this.y - v.y;
+        const dz = this.z - v.z;
+
+        return dx * dx + dy * dy + dz * dz;
+    }
+
+    length() {
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
-    mulScale(a, b){
-        return new Vector(this.x*b,this.y*b, this.z*b);
-    }
-    normalize(){
-        if (this.length() > 0)
-            this.ool = 1.0 / this.length();
-        else
-            this.ool = 0;
 
-        this.x *= this.ool;
-        this.y *= this.ool;
-        this.z *= this.ool;
+    lengthSq() {
+        return this.x * this.x + this.y * this.y + this.z * this.z;
+    }
+
+    negate() {
+        this.x = -this.x;
+        this.y = -this.y;
+        this.z = -this.z;
         return this;
+    }
+
+    dot(v) {
+        return this.x * v.x + this.y * v.y + this.z * v.z;
+    }
+
+    clone() {
+        return new Vector(this.x, this.y, this.z);
+    }
+
+    toString() {
+        return `(${this.x}, ${this.y}, ${this.z})`;
+    }
+
+    mulScale(a, b) {
+        return new Vector(this.x * b, this.y * b, this.z * b);
+    }
+
+    normalize() {
+        const len = this.length();
+        if (len > 0) {
+            const invLen = 1.0 / len;
+            this.x *= invLen;
+            this.y *= invLen;
+            this.z *= invLen;
+        }
+        return this;
+    }
+
+    static add(a, b) {
+        return new Vector(a.x + b.x, a.y + b.y, a.z + b.z);
+    }
+
+    static sub(a, b) {
+        return new Vector(a.x - b.x, a.y - b.y, a.z - b.z);
+    }
+
+    static multiply(a, s) {
+        return new Vector(a.x * s, a.y * s, a.z * s);
+    }
+
+    static cross(a, b) {
+        return new Vector(
+            a.y * b.z - a.z * b.y,
+            a.z * b.x - a.x * b.z,
+            a.x * b.y - a.y * b.x
+        );
+    }
+
+    static distance(a, b) {
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        const dz = a.z - b.z;
+
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    static negate(v) {
+        return new Vector(-v.x, -v.y, -v.z);
     }
 }

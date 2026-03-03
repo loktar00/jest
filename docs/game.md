@@ -1,5 +1,3 @@
-
-
 <!-- Start D:\xampp\htdocs\jest\source\game.js -->
 
 function
@@ -76,4 +74,3 @@ x,y number
 Checks all the entities to see if they were hit by the coords. Very expensive right now definitly need to clean it up
 
 <!-- End D:\xampp\htdocs\jest\source\game.js -->
-

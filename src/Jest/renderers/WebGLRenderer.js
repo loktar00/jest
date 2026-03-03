@@ -235,11 +235,15 @@ export default class WebGLRenderer extends RendererBase {
             y = (entity.pos.y - oY) * scale;
             w = (entity.width - scaleVal.x) * scale;
             h = (entity.height - scaleVal.y) * scale;
+            // Use full texture — particles always use the entire image.
+            // entity.width is already scaled by jestScale, so using it for
+            // source dimensions would produce UV coords beyond 1.0 and cause
+            // CLAMP_TO_EDGE to stretch edge pixels into a visible "line".
             srcRect = {
-                x: entity.startX,
-                y: entity.startY,
-                w: entity.width * scale,
-                h: entity.height * scale,
+                x: 0,
+                y: 0,
+                w: source.width,
+                h: source.height,
                 texW: source.width,
                 texH: source.height
             };

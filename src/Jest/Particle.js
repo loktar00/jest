@@ -23,8 +23,8 @@ export default class Particle extends Sprite {
         this.size *= this.ctx.jestScale;
 
         this.scale = {
-            x: 1,
-            y: 1
+            x: 0,
+            y: 0
         };
 
         this.width = this.size;
@@ -208,16 +208,17 @@ export default class Particle extends Sprite {
 
         if (!this.shape) {
             context.globalAlpha = this.alpha;
+            const src = this.resource.source;
 
             if (this.drawAngle !== 0) {
                 context.translate(x, y);
                 context.rotate(rotAngle);
                 context.drawImage(
-                    this.resource.source,
-                    this.startX * this.ctx.jestScale,
-                    this.startY * this.ctx.jestScale,
-                    width * this.ctx.jestScale,
-                    height * this.ctx.jestScale,
+                    src,
+                    0,
+                    0,
+                    src.width,
+                    src.height,
                     -oX,
                     -oY,
                     (width - scale.x) * this.ctx.jestScale,
@@ -225,11 +226,11 @@ export default class Particle extends Sprite {
                 );
             } else {
                 context.drawImage(
-                    this.resource.source,
-                    this.startX,
-                    this.startY,
-                    width * this.ctx.jestScale,
-                    height * this.ctx.jestScale,
+                    src,
+                    0,
+                    0,
+                    src.width,
+                    src.height,
                     (x - oX) * this.ctx.jestScale,
                     (y - oY) * this.ctx.jestScale,
                     (width - scale.x) * this.ctx.jestScale,

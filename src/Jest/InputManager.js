@@ -76,6 +76,31 @@ export default class InputManager {
             false
         );
 
+        // Touch events
+        canvas.addEventListener(
+            'touchstart',
+            (event) => this.handleTouchStart(event),
+            false
+        );
+
+        canvas.addEventListener(
+            'touchmove',
+            (event) => this.handleTouchMove(event),
+            false
+        );
+
+        canvas.addEventListener(
+            'touchend',
+            (event) => this.handleTouchEnd(event),
+            false
+        );
+
+        canvas.addEventListener(
+            'touchcancel',
+            (event) => this.handleTouchEnd(event),
+            false
+        );
+
         // Keyboard
         document.addEventListener(
             'keydown',
@@ -151,6 +176,18 @@ export default class InputManager {
         this.midDown = false;
         this.rightDown = false;
         this.eventBus.emit('input:mouseup');
+    }
+
+    handleTouchStart(event) {
+        this.eventBus.emit('input:touchstart', event);
+    }
+
+    handleTouchMove(event) {
+        this.eventBus.emit('input:touchmove', event);
+    }
+
+    handleTouchEnd(event) {
+        this.eventBus.emit('input:touchend', event);
     }
 
     handleMouseWheel(event) {

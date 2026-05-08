@@ -1,3 +1,5 @@
+import Transition from './Transition.js';
+
 export default class SceneManager {
     constructor(renderer, entityManager, eventBus) {
         this.renderer = renderer;
@@ -42,6 +44,18 @@ export default class SceneManager {
     }
 
     switchState(options) {
+        if (options.exitTransition && !options.exitComplete) {
+            const exitTransition = new Transition(
+                options.exitTransition,
+                () => {
+                    options.exitComplete = true;
+                    this.switchState(options);
+                }
+            );
+            this.entityManager.addEntity(exitTransition, false, null, this);
+            return;
+        }
+
         const foundState = this.getState(options);
 
         if (foundState) {
@@ -54,6 +68,16 @@ export default class SceneManager {
             }
 
             this.eventBus.emit('stateChange', foundState);
+
+            if (options.enterTransition) {
+                const enterTransition = new Transition(options.enterTransition);
+                this.entityManager.addEntity(
+                    enterTransition,
+                    false,
+                    null,
+                    this
+                );
+            }
         }
     }
 }
